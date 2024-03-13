@@ -1,16 +1,19 @@
 <template>
   <div class="w-screen h-screen">
-    <l-map v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]">
-      <l-tile-layer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
-      <l-marker :lat-lng="[lat, lon]">
-        <l-popup>
-          <h1>Nazwa tutaj</h1>
-          <p>Temperatura: {{ temperature }}°C</p>
-          <p>Wilgotność: {{ humidyty }}%</p>
-          <p>Dane odebrane o: {{ time }}</p>
-        </l-popup>
-      </l-marker>
-    </l-map>
+    <div class="z-20 bg-background w-96 h-96 fixed"></div>
+    <div class="w-screen h-screen">
+      <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]">
+        <l-tile-layer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
+        <l-marker :lat-lng="[lat, lon]">
+          <l-popup>
+            <h1>Nazwa tutaj</h1>
+            <p>Temperatura: {{ temperature }}°C</p>
+            <p>Wilgotność: {{ humidyty }}%</p>
+            <p>Dane odebrane o: {{ time }}</p>
+          </l-popup>
+        </l-marker>
+      </l-map> 
+    </div>
   </div>
 </template>
 
