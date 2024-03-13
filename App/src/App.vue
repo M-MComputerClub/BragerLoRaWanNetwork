@@ -6,19 +6,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-export default {
-  components: {
-    LMap,
-    LTileLayer,
-  },
-  data() {
-    return {
-      zoom: 2,
-    };
-  },
-};
+let zoom = 2;
 </script>
