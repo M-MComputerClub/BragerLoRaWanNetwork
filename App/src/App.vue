@@ -11,4 +11,17 @@ import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
 let zoom = 15;
+
+const getLocationAndShow = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            console.log("Szerokość geograficzna: " + position.coords.latitude);
+            console.log("Długość geograficzna: " + position.coords.longitude);
+        });
+    } else { 
+        console.log("Geolokalizacja nie jest obsługiwana przez tę przeglądarkę.");
+    }
+}
+
+getLocationAndShow()
 </script>
