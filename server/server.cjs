@@ -14,9 +14,6 @@ const io = socketIo(server, {
     }
   });
 
-// Wywołuj funkcję pobierzDane co 5 minut
-setInterval(pobierzDane, 10 * 1000);
-
 // Obsługa połączenia Socket.IO
 io.on('connection', (socket) => {
     console.log('Nowe połączenie Socket.IO');
@@ -26,7 +23,10 @@ app.post('/api/dane', (req, res) => {
   const data = req.body; // Pobranie danych JSON z body żądania
 
   // Przetworzenie danych JSON
-  io.emit('dane', data);
+  io.emit('Temp', data.T);
+  io.emit('Wilk', data.W);
+  io.emit('X', data.X);
+  io.emit('Y', data.Y);
   console.log(data); // Wyświetlenie danych JSON w konsoli
 
   res.status(200).send("Dane odebrane!"); // Wysłanie odpowiedzi
