@@ -14,32 +14,19 @@ const io = socketIo(server, {
     }
   });
 
-// Pobieranie danych z pliku dane.json
-const danePath = './dane.json';
-
-function pobierzDane() {
-    const dane = JSON.parse(fs.readFileSync(danePath, 'utf8'));
-    const temperatura = dane.temperatura;
-    const wilgotnosc = dane.wilgotnosc; // Wyodrębnienie tylko wartości temperatury
-    console.log(temperatura, wilgotnosc);
-    io.emit('dane', temperatura, wilgotnosc); // Wysyłanie danych na stronę internetową
-}
-
 // Wywołuj funkcję pobierzDane co 5 minut
 setInterval(pobierzDane, 10 * 1000);
 
 // Obsługa połączenia Socket.IO
 io.on('connection', (socket) => {
     console.log('Nowe połączenie Socket.IO');
-    // pobierzDane(); // Wysyłanie danych przy połączeniu klienta
 });
-
 
 app.post('/api/dane', (req, res) => {
   const data = req.body; // Pobranie danych JSON z body żądania
 
   // Przetworzenie danych JSON
-  //io.emit('dane', data.Temp);
+  io.emit('dane', data);
   console.log(data); // Wyświetlenie danych JSON w konsoli
 
   res.status(200).send("Dane odebrane!"); // Wysłanie odpowiedzi
