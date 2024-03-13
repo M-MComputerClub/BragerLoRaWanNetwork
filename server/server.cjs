@@ -14,16 +14,27 @@ const io = socketIo(server, {
     }
   });
 
+  let temperatura = 0
+  let wilgotnosc = 0
+  let szerokosc = 0
+  let wysokosc = 0
+  let dataRealna = 0;
+  
+
 // Obsługa połączenia Socket.IO
 io.on('connection', (socket) => {
     console.log('Nowe połączenie Socket.IO');
+    io.emit('dane', temperatura, wilgotnosc, szerokosc, wysokosc);
 });
 
 app.post('/api/dane', (req, res) => {
   const data = req.body; // Pobranie danych JSON z body żądania
-
+  temperatura = data.T
+  wilgotnosc = data.W
+  szerokosc = data.X
+  wysokosc = data.Y
   // Przetworzenie danych JSON
-  io.emit('data', data.T,data.W,data.X,data.Y);
+  io.emit('dane', temperatura, wilgotnosc, szerokosc, wysokosc, new Date());
   // io.emit('Wilk', data.W);
   // io.emit('X', data.X);
   // io.emit('Y', data.Y);
