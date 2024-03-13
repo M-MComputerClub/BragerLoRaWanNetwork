@@ -4,7 +4,8 @@ const cors = require('cors');
 const socketIo = require('socket.io');
 const fs = require('fs');
 const app = express();
-import axios from 'axios';
+const axios = express('axios');
+
 app.use(cors());
 app.use(express.json()); 
 const server = http.createServer(app);
