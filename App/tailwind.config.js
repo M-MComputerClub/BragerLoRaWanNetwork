@@ -5,8 +5,9 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    color: {
+    colors: {
       'background': '#222733',
+      'white': '#fff',
     },
     extend: {},
   },
