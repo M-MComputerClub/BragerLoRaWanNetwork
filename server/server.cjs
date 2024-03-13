@@ -36,15 +36,15 @@ app.post('/api/dane', async (req, res) => {
   szerokosc = data.X
   wysokosc = data.Y
   
-  const response = await axios.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + coordinates[0] + '&lon=' + coordinates[1]);
-  let house_number = response.data.address.house_number ? response.data.address.house_number + ' ' : '';
-  let road = response.data.address.road ? response.data.address.road + ' ' : '';
-  let town = response.data.address.town ? response.data.address.town + ' ' : '';
-  let city = response.data.address.city ? response.data.address.city : '';
-  address.value = road + house_number + town + city || coordinates;
+  // const response = await axios.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + coordinates[0] + '&lon=' + coordinates[1]);
+  // let house_number = response.data.address.house_number ? response.data.address.house_number + ' ' : '';
+  // let road = response.data.address.road ? response.data.address.road + ' ' : '';
+  // let town = response.data.address.town ? response.data.address.town + ' ' : '';
+  // let city = response.data.address.city ? response.data.address.city : '';
+  // address.value = road + house_number + town + city || coordinates;
   
   // Przetworzenie danych JSON
-  io.emit('dane', temperatura, wilgotnosc, szerokosc, wysokosc, new Date()),address.value;
+  io.emit('dane', temperatura, wilgotnosc, szerokosc, wysokosc, new Date()); //,address.value
   // io.emit('Wilk', data.W);
   // io.emit('X', data.X);
   // io.emit('Y', data.Y);
