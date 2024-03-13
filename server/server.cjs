@@ -39,7 +39,7 @@ app.post('/api/dane', (req, res) => {
   const data = req.body; // Pobranie danych JSON z body żądania
 
   // Przetworzenie danych JSON
-  io.emit('dane', data.Temp);
+  //io.emit('dane', data.Temp);
   console.log(data); // Wyświetlenie danych JSON w konsoli
 
   res.status(200).send("Dane odebrane!"); // Wysłanie odpowiedzi
