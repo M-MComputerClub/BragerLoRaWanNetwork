@@ -23,10 +23,10 @@ app.post('/api/dane', (req, res) => {
   const data = req.body; // Pobranie danych JSON z body żądania
 
   // Przetworzenie danych JSON
-  io.emit('Temp', data.T);
-  io.emit('Wilk', data.W);
-  io.emit('X', data.X);
-  io.emit('Y', data.Y);
+  io.emit('data', data.T,data.W,data.X,data.Y);
+  // io.emit('Wilk', data.W);
+  // io.emit('X', data.X);
+  // io.emit('Y', data.Y);
   console.log(data); // Wyświetlenie danych JSON w konsoli
 
   res.status(200).send("Dane odebrane!"); // Wysłanie odpowiedzi
