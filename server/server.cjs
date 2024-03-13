@@ -14,9 +14,6 @@ const io = socketIo(server, {
     }
   });
 
-// Wywołuj funkcję pobierzDane co 5 minut
-setInterval(pobierzDane, 10 * 1000);
-
 // Obsługa połączenia Socket.IO
 io.on('connection', (socket) => {
     console.log('Nowe połączenie Socket.IO');
