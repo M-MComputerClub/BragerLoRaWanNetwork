@@ -12,7 +12,9 @@
     "@cypress/vite-dev-server": "^5.0.6",
     "@cypress/vue": "^6.0.0",
     "cypress": "^13.5.1",
-    "vue": "^3.3.8"
+    "leaflet": "^1.9.4",
+    "vue": "^3.3.8",
+    "vue-leaflet": "^0.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
