@@ -1,0 +1,51 @@
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const socketIo = require('socket.io');
+const fs = require('fs');
+const app = express();
+app.use(cors());
+app.use(express.json()); 
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+// Pobieranie danych z pliku dane.json
+const danePath = './dane.json';
+
+function pobierzDane() {
+    const dane = JSON.parse(fs.readFileSync(danePath, 'utf8'));
+    const temperatura = dane.temperatura;
+    const wilgotnosc = dane.wilgotnosc; // Wyodrębnienie tylko wartości temperatury
+    console.log(temperatura, wilgotnosc);
+    io.emit('dane', temperatura, wilgotnosc); // Wysyłanie danych na stronę internetową
+}
+
+// Wywołuj funkcję pobierzDane co 5 minut
+setInterval(pobierzDane, 10 * 1000);
+
+// Obsługa połączenia Socket.IO
+io.on('connection', (socket) => {
+    console.log('Nowe połączenie Socket.IO');
+    pobierzDane(); // Wysyłanie danych przy połączeniu klienta
+});
+
+
+app.post('/api/dane', (req, res) => {
+  const data = req.body; // Pobranie danych JSON z body żądania
+
+  // Przetworzenie danych JSON
+  io.emit('dane', data.Temp);
+  console.log(data); // Wyświetlenie danych JSON w konsoli
+
+  res.status(200).send("Dane odebrane!"); // Wysłanie odpowiedzi
+});
+
+// Serwer HTTP nasłuchuje
+server.listen(4001, () => {
+    console.log('Serwer nasłuchuje na porcie 4001');
+});
