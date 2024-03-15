@@ -18,7 +18,7 @@ def generate_random_values():
     }
 
 # Dane JSON do wysłania
-with open("ESP32_code/config.json", "r") as f:
+with open("ESP32Code/gateway/config.json", "r") as f:
     # Wczytaj dane JSON do zmiennej
     data = json.load(f)
 
