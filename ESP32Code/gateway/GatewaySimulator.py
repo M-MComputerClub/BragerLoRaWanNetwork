@@ -30,8 +30,8 @@ while True:
         random_values = generate_random_values()
         node_data["W"] = random_values["W"]
         node_data["T"] = random_values["T"]
-        node_data["X"] = random_values["X"]
-        node_data["Y"] = random_values["Y"]
+        #node_data["X"] = random_values["X"]
+        #node_data["Y"] = random_values["Y"]
         node_data["GatewayDevId"] = names[random.randint(0, 1)]
                 
         # Adres URL serwera Node
