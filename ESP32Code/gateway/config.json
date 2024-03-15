@@ -1,0 +1,35 @@
+{
+ "config": 
+    {
+      "interval": "2"
+    },
+    "Gates": 
+    {
+        "1":{
+            "Name":"g-4df5g6h"
+        },
+        "2":{
+            "Name":"g-2432fg"
+        }
+    },
+
+    "Nodes":
+    {
+        "1": {
+            "DevId":"n-f6g7he",
+            "GatewayDevId": "huj7",
+            "W": 0,
+            "T": 0,
+            "X": 0,
+            "Y": 0
+        },
+        "2": {
+            "DevId":"n-32ewg",
+            "GatewayDevId": "huj7",
+            "W": 0,
+            "T": 0,
+            "X": 0,
+            "Y": 0
+        }
+    }
+ }
