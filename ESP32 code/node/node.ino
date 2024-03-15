@@ -1,5 +1,5 @@
 #include <DHT.h>
-
+#include <esp_wifi.h>
 /*********
   Modified from the examples of the Arduino LoRa library
   More resources: https://randomnerdtutorials.com
@@ -23,6 +23,11 @@ void setup() {
   //initialize Serial Monitor
   Serial.begin(115200);
   while (!Serial);
+
+  //Pobieranie adresu Mac na DevID
+  uint64_t chipMac,  = ESP.getEfuseMac();
+  Serial.printf("\nCHIP MAC: %012llx\n", chipMac);
+
   Serial.println("LoRa Sender");
 
   //setup LoRa transceiver module
