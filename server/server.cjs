@@ -43,31 +43,30 @@ io.on('connection', async (socket) => {
     const collection = database.collection('Devices');
     const result = await collection.find({}).toArray();
     if (result.length > 0) {
-        console.log('Wszystkie dane z bazy danych:');
-        console.log(result);
         
         // Iteracja przez wszystkie dokumenty z bazy danych
         for (let doc of result) {
             console.log(
-                doc.gatewayDevID,
                 doc.DevID,
-                doc.geolocationLatitude,
-                doc.geolocationLongitude,
-                doc.geolocationName,
                 doc.temperature,
                 doc.humidity,
+                doc.geolocationName,
+                doc.gatewayDevID,
+                doc.geolocationLatitude,
+                doc.geolocationLongitude,
                 doc.time
             )
             // Wysłanie danych dla każdego unikalnego DevID
-            // socket.emit(doc.DevID, {
-            //     gatewayDevID: doc.gatewayDevID,
-            //     geolocationLatitude: doc.geolocationLatitude,
-            //     geolocationLongitude: doc.geolocationLongitude,
-            //     geolocationName: doc.geolocationName,
-            //     temperature: doc.temperature,
-            //     humidity: doc.humidity,
-            //     time: doc.time
-            // });
+            socket.emit('Dane', {
+                DevID: doc.DevID,
+                temperature: doc.temperature,
+                humidity: doc.humidity,
+                geolocationName: doc.geolocationName,
+                gatewayDevID: doc.gatewayDevID,
+                geolocationLatitude: doc.geolocationLatitude,
+                geolocationLongitude: doc.geolocationLongitude,
+                time: doc.time
+            });
         }
     } else {
         console.log('Brak danych w bazie danych.');
@@ -97,12 +96,12 @@ app.post('/api/dane', async (req, res) => {
             { DevID: DevId },
             {
                 $set: {
+                    temperature: temperatura,
+                    humidity: wilgotnosc,
+                    geolocationName: geolocationName,
                     gatewayDevID: GatewayDevId,
                     geolocationLatitude: szerokosc,
                     geolocationLongitude: wysokosc,
-                    geolocationName: geolocationName,
-                    temperature: temperatura,
-                    humidity: wilgotnosc,
                     time: time
                 }
             }
@@ -111,13 +110,13 @@ app.post('/api/dane', async (req, res) => {
     } else {
         // Jeśli dokument nie istnieje, dodajemy go
         await collection.insertOne({
-            gatewayDevID: GatewayDevId,
             DevID: DevId,
-            geolocationLatitude: szerokosc,
-            geolocationLongitude: wysokosc,
-            geolocationName: geolocationName,
             temperature: temperatura,
             humidity: wilgotnosc,
+            geolocationName: geolocationName,
+            gatewayDevID: GatewayDevId,
+            geolocationLatitude: szerokosc,
+            geolocationLongitude: wysokosc,
             time: time
         });
         console.log('Dane urządzenia zostały dodane.');
