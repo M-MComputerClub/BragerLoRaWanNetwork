@@ -49,4 +49,3 @@ while True:
             print("Dane wysłane pomyślnie!")
         else:
             print("Błąd:", response.status_code, response.text)
-    time.sleep(interval)

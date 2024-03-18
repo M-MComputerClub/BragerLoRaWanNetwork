@@ -16,20 +16,20 @@
     "Nodes":
     {
         "1": {
-            "DevId":"n-f6g7he",
             "GatewayDevId": "huj7",
+            "DevId":"n-f6g7he",
             "W": 0,
             "T": 0,
             "X": 51.889056,
             "Y": 17.775250
         },
         "2": {
-            "DevId":"n-32ewg",
             "GatewayDevId": "huj7",
+            "DevId":"n-32ewg",
             "W": 0,
             "T": 0,
             "X": 51.621457,
-            "Y": 17.819146,
+            "Y": 17.819146
         }
     }
  }
