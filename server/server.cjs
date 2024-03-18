@@ -122,6 +122,7 @@ app.post('/api/dane', async (req, res) => {
         });
         console.log('Dane urządzenia zostały dodane.');
     }
+    res.status(200).send('Dane odebrane!')
 });
 
 // Serwer HTTP nasłuchuje na porcie 4001
