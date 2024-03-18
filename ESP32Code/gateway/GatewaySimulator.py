@@ -12,9 +12,7 @@ interval = 2
 def generate_random_values():
     return {
         "W": random.randint(0, 100),
-        "T": random.randint(0, 100),
-        "X": random.randint(0, 100),
-        "Y": random.randint(0, 100)
+        "T": random.randint(-20, 45)
     }
 
 # Dane JSON do wysłania
@@ -30,8 +28,7 @@ while True:
         random_values = generate_random_values()
         node_data["W"] = random_values["W"]
         node_data["T"] = random_values["T"]
-        #node_data["X"] = random_values["X"]
-        #node_data["Y"] = random_values["Y"]
+
         node_data["GatewayDevId"] = names[random.randint(0, 1)]
                 
         # Adres URL serwera Node
@@ -49,4 +46,4 @@ while True:
             print("Dane wysłane pomyślnie!")
         else:
             print("Błąd:", response.status_code, response.text)
-    time.sleep(interval)
+        time.sleep(interval)
