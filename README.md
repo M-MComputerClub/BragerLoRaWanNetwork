@@ -1,1 +1,2 @@
 # BragerLoRaWanNetwork
+elo żelo
