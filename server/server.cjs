@@ -82,7 +82,10 @@ app.post('/api/dane', async (req, res) => {
     const DevId = data.DevId;
     const GatewayDevId = data.GatewayDevId;
     const geolocationName = 'Twoja lokalizacja'; // Zastąp to rzeczywistą nazwą lokalizacji
-    const time = new Date().toISOString(); // Aktualna data i czas
+
+    let time = new Date(); // Aktualna data i czas
+    time.setHours(time.getHours() + 1); // Dodanie godziny
+    time = time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[0].split("-").reverse().join("/") + " " + time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[1]; // Formatowanie daty i czasu
 
     const database = client.db('BragerLoRaWanNetwork');
     const collection = database.collection('Devices');
