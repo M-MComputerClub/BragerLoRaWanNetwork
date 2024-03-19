@@ -1,3 +1,6 @@
+#include <SPI.h>
+#include <LoRa.h>
+#include <HTTPClient.h>   // Biblioteka do wysyłania żądań HTTP
 /*********
   Rui Santos
   Complete instructions at https://RandomNerdTutorials.com/esp32-wi-fi-manager-asyncwebserver/
@@ -13,6 +16,11 @@
 #include "SPIFFS.h"
 #include "manager.h"
 #include "home.h"
+
+#define ss 5
+#define rst 14
+#define dio0 2
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -21,19 +29,21 @@ const char* PARAM_INPUT_1 = "ssid";
 const char* PARAM_INPUT_2 = "pass";
 const char* PARAM_INPUT_3 = "ip";
 const char* PARAM_INPUT_4 = "gateway";
-
+const char* PARAM_INPUT_5 = "server";
 
 //Variables to save values from HTML form
 String ssid;
 String pass;
 String ip;
 String gateway;
+String serverip;
 
 // File paths to save input values permanently
 const char* ssidPath = "/ssid.txt";
 const char* passPath = "/pass.txt";
 const char* ipPath = "/ip.txt";
 const char* gatewayPath = "/gateway.txt";
+const char* serveripPath = "/gateway.txt";
 
 IPAddress localIP;
 //IPAddress localIP(192, 168, 1, 200); // hardcoded
@@ -52,6 +62,32 @@ const int ledPin = 2;
 // Stores LED state
 
 String ledState;
+
+bool conectted;
+
+void Uplod2Server(String Data) {
+  HTTPClient http;
+
+  // Ustaw adres URL i port serwera (zamień na dane swojego serwera)
+  http.begin("http://"+serverip+":4001/api/dane"); //192.168.29.189
+
+  // Ustaw nagłówek typu treści, aby wskazać dane JSON
+  http.addHeader("Content-Type", "application/json");
+
+  // Wyślij żądanie HTTP POST z danymi JSON
+  int httpResponseCode = http.POST(Data);
+
+  if (httpResponseCode > 0) {
+    // Odczytaj odpowiedź z serwera (jeśli istnieje)
+    String response = http.getString();
+    Serial.println(httpResponseCode);
+    Serial.println(response);
+  } else {
+    Serial.println("Błąd podczas wysyłania danych JSON");
+  }
+}
+
+
 
 // Initialize SPIFFS
 void initSPIFFS() {
@@ -143,58 +179,8 @@ String processor(const String& var) {
   return String();
 }
 
-void setup() {
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-
-  initSPIFFS();
-
-  // Set GPIO 2 as an OUTPUT
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
-  
-  // Load values saved in SPIFFS
-  ssid = readFile(SPIFFS, ssidPath);
-  pass = readFile(SPIFFS, passPath);
-  ip = readFile(SPIFFS, ipPath);
-  gateway = readFile (SPIFFS, gatewayPath);
-  Serial.println(ssid);
-  Serial.println(pass);
-  Serial.println(ip);
-  Serial.println(gateway);
-
-  if(initWiFi()) {
-    // Route for root / web page
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-      request->send(200, "text/html", home);
-    });
-    server.serveStatic("/", SPIFFS, "/");
-    
-    // Route to set GPIO state to HIGH
-    server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request) {
-      digitalWrite(ledPin, HIGH);
-      request->send(200, "text/html", home);
-      
-    });
-
-    // Route to set GPIO state to LOW
-    server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request) {
-      digitalWrite(ledPin, LOW);
-      request->send(200, "text/html", home);
-    });
-    server.begin();
-  }
-  else {
-    // Connect to Wi-Fi network with SSID and password
-    Serial.println("Setting AP (Access Point)");
-    // NULL sets an open Access Point
-    WiFi.softAP("ESP-WIFI-MANAGER", NULL);
-
-    IPAddress IP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(IP); 
-
-    // Web Server Root URL
+void web(){
+  // Web Server Root URL
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(200, "text/html", wifimanager);
       //send(200, "text/html", wifimanager);  
@@ -240,6 +226,15 @@ void setup() {
             // Write file to save value
             writeFile(SPIFFS, gatewayPath, gateway.c_str());
           }
+
+                    // HTTP POST server value
+          if (p->name() == PARAM_INPUT_5) {
+            serverip = p->value().c_str();
+            Serial.print("server IP set to: ");
+            Serial.println(serverip);
+            // Write file to save value
+            writeFile(SPIFFS, serveripPath, serverip.c_str());
+          }
           //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
         }
       }
@@ -248,9 +243,89 @@ void setup() {
       ESP.restart();
     });
     server.begin();
+}
+
+void setup() {
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA
+  while (!Serial);
+  Serial.println("LoRa Receiver");
+
+  //setup LoRa transceiver module
+  LoRa.setPins(ss, rst, dio0);
+
+  //replace the LoRa.begin(---E-) argument with your location's frequency
+  //433E6 for Asia
+  //866E6 for Europe
+  //915E6 for North America
+  while (!LoRa.begin(866E6)) {
+    Serial.println(".");
+    delay(500);
+  }
+  // Change sync word (0xF3) to match the receiver
+  // The sync word assures you don't get LoRa messages from other LoRa transceivers
+  // ranges from 0-0xFF
+  LoRa.setSyncWord(0xF3);
+  LoRa.setTxPower(20);
+  LoRa.setSpreadingFactor(12);
+  Serial.println("LoRa Initializing OK!");
+  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA
+  initSPIFFS();
+
+  // Set GPIO 2 as an OUTPUT
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+  
+  // Load values saved in SPIFFS
+  ssid = readFile(SPIFFS, ssidPath);
+  pass = readFile(SPIFFS, passPath);
+  ip = readFile(SPIFFS, ipPath);
+  gateway = readFile (SPIFFS, gatewayPath);
+  serverip = readFile (SPIFFS, serveripPath);
+  Serial.println(ssid);
+  Serial.println(pass);
+  Serial.println(ip);
+  Serial.println(gateway);
+  Serial.println(serverip);
+  conectted = initWiFi();
+  if(conectted) {
+    web();
+    //server.begin();
+  }
+  else {
+    // Connect to Wi-Fi network with SSID and password
+    Serial.println("Setting AP (Access Point)");
+    // NULL sets an open Access Point
+    WiFi.softAP("ESP-WIFI-MANAGER", NULL);
+
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(IP); 
+
+    web();
   }
 }
 
 void loop() {
+  // Połącz się z siecią Wi-Fi
+  if (conectted) {
+    int packetSize = LoRa.parsePacket();
+    if (packetSize) {
+      // received a packet
+      Serial.print("Received packet '");
 
+      // read packet
+      while (LoRa.available()) {
+        String LoRaData = LoRa.readString();
+        //Serial.print(LoRaData);
+        Uplod2Server(LoRaData);
+      }
+
+      // print RSSI of packet
+      Serial.print("' with RSSI ");
+      Serial.println(LoRa.packetRssi());
+    }
+  }
+  // try to parse packet
 }
