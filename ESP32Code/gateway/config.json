@@ -6,17 +6,21 @@
     "Gates": 
     {
         "1":{
-            "Name":"g-4df5g6h"
+            "Name":"g-4df5g6h",
+            "X": "51.888718",
+            "Y": "17.775706"
         },
         "2":{
-            "Name":"g-2432fg"
+            "Name":"g-2432fg",
+            "X": "51.629351",
+            "Y": "17.820658"
         }
     },
 
     "Nodes":
     {
         "1": {
-            "GatewayDevId": "huj7",
+            "GatewayDevId": "g-4df5g6h",
             "DevId":"n-f6g7he",
             "W": 0,
             "T": 0,
@@ -24,7 +28,7 @@
             "Y": 17.775250
         },
         "2": {
-            "GatewayDevId": "huj7",
+            "GatewayDevId": "g-2432fg",
             "DevId":"n-32ewg",
             "W": 0,
             "T": 0,
