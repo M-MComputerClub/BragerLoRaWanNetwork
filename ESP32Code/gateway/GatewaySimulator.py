@@ -24,7 +24,7 @@ for gate_id, gate_data in data["Gates"].items():
     headers = {'Content-Type': 'application/json'}
 
     # Wysłanie żądania POST
-    print(data["Gates"])
+    print(gate_data)
     response = requests.post(url, headers=headers, data=json.dumps(gate_data))
 
     # Sprawdzenie statusu odpowiedzi
@@ -32,6 +32,7 @@ for gate_id, gate_data in data["Gates"].items():
         print("Dane wysłane pomyślnie!")
     else:
         print("Błąd:", response.status_code, response.text)
+    time.sleep(interval)
 
 while True:
     for node_id, node_data in data["Nodes"].items():
