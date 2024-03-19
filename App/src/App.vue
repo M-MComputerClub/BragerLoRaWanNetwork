@@ -28,14 +28,20 @@ let latitude = ref(null)
 let longitude = ref(null)
 let locationLoaded = ref(false)
 let sensors = ref([])
+let gateways = ref([])
 
 socket.on('connect', () => {
     console.log('Połączono z serwerem');
 });
 
-socket.on('Dane', (data) => {
-    console.log('Otrzymano dane:', data);
+socket.on('endDevices', (data) => {
+    console.log('Otrzymano dane o urzązeniach:', data);
     sensors.value.push(data);
+});
+
+socket.on('gateways', (data) => {
+    console.log('Otrzymano dane o bramkach:', data);
+    gateways.value.push(data);
 });
 
 socket.on('disconnect', () => {
