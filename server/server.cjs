@@ -40,8 +40,9 @@ io.on('connection', async (socket) => {
     console.log('Nowe połączenie Socket.IO');
     
     const database = client.db('BragerLoRaWanNetwork');
-    const collection = database.collection('Devices');
-    const result = await collection.find({}).toArray();
+    const devices = database.collection('Devices');
+    const gateways = database.collection('Gateways');
+    const result = await devices.find({}).toArray();
     if (result.length > 0) {
         
         // Iteracja przez wszystkie dokumenty z bazy danych
@@ -88,14 +89,14 @@ app.post('/api/dane', async (req, res) => {
     time = time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[0].split("-").reverse().join("/") + " " + time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[1]; // Formatowanie daty i czasu
 
     const database = client.db('BragerLoRaWanNetwork');
-    const collection = database.collection('Devices');
+    const devices = database.collection('Devices');
 
     // Sprawdzenie, czy dokument z tym DevID już istnieje
-    const existingDevice = await collection.findOne({ DevID: DevId });
+    const existingDevice = await devices.findOne({ DevID: DevId });
 
     if (existingDevice) {
         // Jeśli dokument istnieje, aktualizujemy go
-        await collection.updateOne(
+        await devices.updateOne(
             { DevID: DevId },
             {
                 $set: {
@@ -109,10 +110,10 @@ app.post('/api/dane', async (req, res) => {
                 }
             }
         );
-        console.log('Dane urządzenia zostały zaktualizowane.');
+        console.log(`Dane urządzenia ${ DevId } zostały zaktualizowane.`);
     } else {
         // Jeśli dokument nie istnieje, dodajemy go
-        await collection.insertOne({
+        await devices.insertOne({
             DevID: DevId,
             temperature: temperatura,
             humidity: wilgotnosc,
@@ -122,10 +123,49 @@ app.post('/api/dane', async (req, res) => {
             geolocationLongitude: wysokosc,
             time: time
         });
-        console.log('Dane urządzenia zostały dodane.');
+        console.log(`Dane urządzenia ${ DevId } zostały dodane.`);
     }
     res.status(200).send('Dane odebrane!')
 });
+
+app.post('/api/config', async (req, res) => {
+    const data = req.body;
+    const GatewayDevId = data.GatewayDevId;
+    const szerokosc = data.X;
+    const wysokosc = data.Y;
+    const geolocationName = 'Twoja lokalizacja';
+    
+    const database = client.db('BragerLoRaWanNetwork');
+    const gateways = database.collection('Gateways');
+
+    // Sprawdzenie, czy dokument z tym DevID już istnieje
+    const existingDevice = await gateways.findOne({ GatewayDevID: GatewayDevId });
+
+    if (existingDevice) {
+        // Jeśli dokument istnieje, aktualizujemy go
+        await gateways.updateOne(
+            { GatewayDevID: GatewayDevId },
+            {
+                $set: {
+                    geolocationName: geolocationName,
+                    gatewayGeolocationLatitude: szerokosc,
+                    gatewayGeolocationLongitude: wysokosc,  
+                }
+            }
+        );
+        console.log(`Dane gatewaya ${ GatewayDevId } zostały zaktualizowane.`);
+    } else {
+        // Jeśli dokument nie istnieje, dodajemy go
+        await gateways.insertOne({
+            geolocationName: geolocationName,
+            gatewayDevID: GatewayDevId,
+            gatewayGeolocationLatitude: szerokosc,
+            gatewayGeolocationLongitude: wysokosc,
+        });
+        console.log(`Dane gatewaya ${ GatewayDevId } zostały dodane.`);
+    }
+    res.status(200).send('Dane odebrane!')
+})
 
 // Serwer HTTP nasłuchuje na porcie 4001
 server.listen(4001, () => {
