@@ -16,7 +16,6 @@ with open("ESP32Code/gateway/config.json", "r") as f:
 
 interval = int(data["config"]["interval"])
 
-print("\n\n\n-------------------------Gateways-------------------------")
 for gate_id, gate_data in data["Gates"].items():            
     # Adres URL serwera Node
     url = "http://localhost:4001/api/config"
@@ -25,18 +24,15 @@ for gate_id, gate_data in data["Gates"].items():
     headers = {'Content-Type': 'application/json'}
 
     # Wysłanie żądania POST
-    print(gate_data)
+    print(data["Gates"])
     response = requests.post(url, headers=headers, data=json.dumps(gate_data))
 
     # Sprawdzenie statusu odpowiedzi
     if response.status_code == 200:
-        print("Gramka wysłana pomyślnie!")
+        print("Dane wysłane pomyślnie!")
     else:
         print("Błąd:", response.status_code, response.text)
-    time.sleep(interval)
 
-print("Koniec wysyłania konfiguracji!\nZaczynam wysywać urządzenia końcowe")
-print("\n\n\n-------------------------NODES-------------------------")
 while True:
     for node_id, node_data in data["Nodes"].items():
         node_data["W"] = random.randint(0, 100)

@@ -133,14 +133,14 @@ app.post('/api/config', async (req, res) => {
     const GatewayDevId = data.GatewayDevId;
     const szerokosc = data.X;
     const wysokosc = data.Y;
-    const geolocationName = 'Twoja lokalizacja';
+    const geolocationName = 'Gateway lokalizacja';
     
     const database = client.db('BragerLoRaWanNetwork');
     const gateways = database.collection('Gateways');
 
     // Sprawdzenie, czy dokument z tym DevID już istnieje
     const existingDevice = await gateways.findOne({ GatewayDevID: GatewayDevId });
-
+    
     if (existingDevice) {
         // Jeśli dokument istnieje, aktualizujemy go
         await gateways.updateOne(
@@ -149,7 +149,7 @@ app.post('/api/config', async (req, res) => {
                 $set: {
                     geolocationName: geolocationName,
                     gatewayGeolocationLatitude: szerokosc,
-                    gatewayGeolocationLongitude: wysokosc,  
+                    gatewayGeolocationLongitude: wysokosc,
                 }
             }
         );
@@ -157,8 +157,8 @@ app.post('/api/config', async (req, res) => {
     } else {
         // Jeśli dokument nie istnieje, dodajemy go
         await gateways.insertOne({
+            GatewayDevID: GatewayDevId,
             geolocationName: geolocationName,
-            gatewayDevID: GatewayDevId,
             gatewayGeolocationLatitude: szerokosc,
             gatewayGeolocationLongitude: wysokosc,
         });
