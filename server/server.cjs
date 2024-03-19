@@ -42,11 +42,12 @@ io.on('connection', async (socket) => {
     const database = client.db('BragerLoRaWanNetwork');
     const devices = database.collection('Devices');
     const gateways = database.collection('Gateways');
-    const result = await devices.find({}).toArray();
-    if (result.length > 0) {
+    const resultdevices = await devices.find({}).toArray();
+    const resultgateways = await gateways.find({}).toArray();
+    if (resultdevices.length > 0) {
         
         // Iteracja przez wszystkie dokumenty z bazy danych
-        for (let doc of result) {
+        for (let doc of resultdevices) {
             console.log(
                 doc.DevID,
                 doc.temperature,
@@ -58,7 +59,7 @@ io.on('connection', async (socket) => {
                 doc.time
             )
             // Wysłanie danych dla każdego unikalnego DevID
-            socket.emit('Dane', {
+            socket.emit('endDevices', {
                 DevID: doc.DevID,
                 temperature: doc.temperature,
                 humidity: doc.humidity,
@@ -69,9 +70,28 @@ io.on('connection', async (socket) => {
                 time: doc.time
             });
         }
-    } else {
-        console.log('Brak danych w bazie danych.');
-    }
+
+    } else {console.log('Brak danych o urzązeniach w bazie danych.');}
+
+    if (resultgateways.length > 0) {
+
+        for (let doc of resultgateways) {
+            console.log(
+                doc.GatewayDevID,
+                doc.geolocationName,
+                doc.gatewayGeolocationLatitude,
+                doc.gatewayGeolocationLongitude,
+            )
+            // Wysłanie danych dla każdego unikalnego DevID
+            socket.emit('gateways', {  
+                gatewayDevID: doc.GatewayDevID,
+                geolocationName: doc.geolocationName,
+                geolocationLatitude: doc.gatewayGeolocationLatitude,
+                geolocationLongitude: doc.gatewayGeolocationLongitude,
+            });
+
+        }
+    }else {console.log('Brak danych o bramkach w bazie danych.');}
 });
 
 app.post('/api/dane', async (req, res) => {
@@ -133,14 +153,14 @@ app.post('/api/config', async (req, res) => {
     const GatewayDevId = data.GatewayDevId;
     const szerokosc = data.X;
     const wysokosc = data.Y;
-    const geolocationName = 'Twoja lokalizacja';
+    const geolocationName = 'Gateway lokalizacja';
     
     const database = client.db('BragerLoRaWanNetwork');
     const gateways = database.collection('Gateways');
 
     // Sprawdzenie, czy dokument z tym DevID już istnieje
     const existingDevice = await gateways.findOne({ GatewayDevID: GatewayDevId });
-
+    
     if (existingDevice) {
         // Jeśli dokument istnieje, aktualizujemy go
         await gateways.updateOne(
@@ -149,7 +169,7 @@ app.post('/api/config', async (req, res) => {
                 $set: {
                     geolocationName: geolocationName,
                     gatewayGeolocationLatitude: szerokosc,
-                    gatewayGeolocationLongitude: wysokosc,  
+                    gatewayGeolocationLongitude: wysokosc,
                 }
             }
         );
@@ -157,8 +177,8 @@ app.post('/api/config', async (req, res) => {
     } else {
         // Jeśli dokument nie istnieje, dodajemy go
         await gateways.insertOne({
+            GatewayDevID: GatewayDevId,
             geolocationName: geolocationName,
-            gatewayDevID: GatewayDevId,
             gatewayGeolocationLatitude: szerokosc,
             gatewayGeolocationLongitude: wysokosc,
         });
