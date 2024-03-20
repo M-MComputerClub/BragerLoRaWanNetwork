@@ -4,6 +4,10 @@
       <h1 class="text-white text-3xl font-semibold cursor-pointer" @click="toggleAdminPanel">Admin</h1>
       <div v-if="isClicked" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <input v-if="isClicked" type="password" v-model="passwordInput" placeholder="Wpisz hasło" @keyup.enter="checkPassword" />
+      <ul v-if="isClicked" class="text-white list-outside">
+        <li>123</li>
+        <li>123</li>
+      </ul>
     </div>
     <div class="w-screen h-screen">
       <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]">
@@ -48,7 +52,11 @@ socket.on('connect', () => {
 
 socket.on('endDevices', (data) => {
     // console.log('Otrzymano dane o urzązeniach:', data);
+    if(data.geolocationLatitude === "undefined" || data.geolocationLongitude === "undefined"){
+    console.error("undefined location")
+    }else{
     sensors.value.push(data);
+    }
 });
 
 socket.on('gateways', (data) => {
@@ -100,14 +108,14 @@ const toggleAdminPanel = () => {
 const checkPassword = () => {
   socket.emit("password?", passwordInput.value);
   console.log("Hasło wysłane");
-
-  socket.on('password!', (isValid) => {
-    console.log(isValid);
-    if(isValid){
-      console.log("Dostęp do panelu administracyjnego przyznany!");
-    }else{
-      console.log("Błędne hasło!")
-    }
-  });
 };
+
+// subskrypcja na zdarzenie 'password!' jest wykonywana tylko raz
+socket.on('password!', (isValid) => {
+  if(isValid){
+    console.log("Dostęp do panelu administracyjnego przyznany!");
+  }else{
+    console.log("Błędne hasło!")
+  }
+});
 </script>

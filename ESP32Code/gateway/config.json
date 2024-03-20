@@ -24,8 +24,8 @@
             "DevId":"n-f6g7he",
             "W": 0,
             "T": 0,
-            "X": 51.889056,
-            "Y": 17.775250
+            "X": "undefined",
+            "Y": "undefined"
         },
         "2": {
             "GatewayDevId": "g-2432fg",
