@@ -229,40 +229,6 @@ app.post('/api/dane', async (req, res) => {
         
         emitDeviceData(io)
 
-// else{
-//         const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${geolocationLatitude}&lon=${geolocationLongitude}`);
-//         const house_number = response.data.address.house_number ? response.data.address.house_number : '';
-//         const road = response.data.address.road ? response.data.address.road : '';
-//         const city = response.data.address.city ? response.data.address.city : '';
-//         const town = response.data.address.town ? response.data.address.town : '';
-//         const geolocationName = `${road} ${house_number} ${city} ${town}`;
-
-//         const database = client.db('BragerLoRaWanNetwork');
-//         const devices = database.collection('Devices');
-    
-//         // Sprawdzenie, czy dokument z tym DevID już istnieje
-//         const existingDevice = await devices.findOne({ DevID: devID });
-    
-//         if (existingDevice) {
-//             // Jeśli dokument istnieje, aktualizujemy go
-//             await devices.updateOne(
-//                 { DevID: devID },
-//                 {
-//                     $set: { temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time }
-//                 }
-//             );
-//             console.log(`Dane urządzenia ${ devID } zostały zaktualizowane.`);
-//         } else {
-//             // Jeśli dokument nie istnieje, dodajemy go
-//             await devices.insertOne({
-//                 DevID: devID, temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time
-//             });
-//             console.log(`Dane urządzenia ${ devID } zostały dodane do bazy danych.`);
-//         }
-//         res.status(200).send('Dane odebrane!')
-    
-//         emitDeviceData(io)
-//     } 
 });
 
 
