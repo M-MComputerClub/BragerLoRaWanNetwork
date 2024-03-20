@@ -4,9 +4,13 @@
       <h1 class="text-white text-3xl font-semibold cursor-pointer" @click="toggleAdminPanel">Admin</h1>
       <div v-if="isClicked" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <input v-if="isClicked" type="password" v-model="passwordInput" placeholder="Wpisz hasło" @keyup.enter="checkPassword" />
-      <ul v-if="isClicked" class="text-white list-outside">
-        <li>123</li>
-        <li>123</li>
+      <ul v-if="isClicked && isValid" class="text-white list-outside flex flex-col gap-4">
+        <li v-for="deviceId in undefinedDevices" :key="deviceId" class="flex items-center flex-col gap-2">
+          <h2>{{ deviceId }}</h2>
+          <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].latitude : ''" @input="updateLatitude(deviceId, $event.target.value)" />
+          <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].longitude : ''" @input="updateLongitude(deviceId, $event.target.value)" />
+        </li>
+        <button class="bg-white text-background p-2 rounded-lg" @click="sendDeviceLocations">Wyślij dane o lokalizacji tych urządzeń</button>
       </ul>
     </div>
     <div class="w-screen h-screen">
@@ -45,17 +49,23 @@ let longitude = ref(null)
 let locationLoaded = ref(false)
 let sensors = ref([])
 let gateways = ref([])
+let undefinedDevices = ref([]);
+let addedUndefinedDevices = []; // Tablica do śledzenia dodanych urządzeń
+let isValid = ref(false);
+let deviceLocation = ref({});
 
 socket.on('connect', () => {
     console.log('Połączono z serwerem');
 });
 
 socket.on('endDevices', (data) => {
-    // console.log('Otrzymano dane o urzązeniach:', data);
-    if(data.geolocationLatitude === "undefined" || data.geolocationLongitude === "undefined"){
-    console.error("undefined location")
-    }else{
-    sensors.value.push(data);
+    if (data.geolocationLatitude === "undefined" || data.geolocationLongitude === "undefined") {
+        if (!addedUndefinedDevices.includes(data.DevID)) { // Sprawdź, czy DevID nie został jeszcze dodany
+            undefinedDevices.value.push(data.DevID); // Dodaj DevID urządzenia do listy undefinedDevices
+            addedUndefinedDevices.push(data.DevID); // Dodaj DevID do tablicy śledzenia
+        }
+    } else {
+        sensors.value.push(data);
     }
 });
 
@@ -111,11 +121,48 @@ const checkPassword = () => {
 };
 
 // subskrypcja na zdarzenie 'password!' jest wykonywana tylko raz
-socket.on('password!', (isValid) => {
-  if(isValid){
+socket.on('password!', (isValidValue) => {
+  if(isValidValue){
     console.log("Dostęp do panelu administracyjnego przyznany!");
-  }else{
+    isValid.value = true;
+  } else {
     console.log("Błędne hasło!")
+    isValid.value = false; 
   }
 });
+
+const updateLatitude = (deviceId, value) => {
+  deviceLocation.value[deviceId] = {
+    ...deviceLocation.value[deviceId],
+    latitude: value
+  };
+};
+
+const updateLongitude = (deviceId, value) => {
+  deviceLocation.value[deviceId] = {
+    ...deviceLocation.value[deviceId],
+    longitude: value
+  };
+};
+
+
+
+
+const sendDeviceLocations = () => {
+    const locations = Object.entries(deviceLocation.value).map(([deviceId, location]) => ({
+        deviceId,
+        latitude: location?.latitude, // Sprawdź, czy location istnieje
+        longitude: location?.longitude // Sprawdź, czy location istnieje
+    }));
+    socket.emit('deviceLocations', locations);
+    console.log('Dane o lokalizacji urządzeń zostały wysłane:', locations);
+
+    // Usunięcie urządzenia z listy undefinedDevices
+    locations.forEach(location => {
+        const index = undefinedDevices.value.indexOf(location.deviceId);
+        if (index !== -1) {
+            undefinedDevices.value.splice(index, 1); // Usuń element z tablicy
+        }
+    });
+};
 </script>
