@@ -34,25 +34,28 @@ for gate_id, gate_data in data["Gates"].items():
         print("Błąd:", response.status_code, response.text)
 
 while True:
-    for node_id, node_data in data["Nodes"].items():
-        node_data["W"] = random.randint(0, 100)
-        node_data["T"] = random.randint(-20, 45)
+    try:
+        for node_id, node_data in data["Nodes"].items():
+            node_data["W"] = random.randint(0, 100)
+            node_data["T"] = random.randint(-20, 45)
 
-        node_data["GatewayDevId"] = names[random.randint(0, 1)]
-                
-        # Adres URL serwera Node
-        url = "http://localhost:4001/api/dane"
+            node_data["GatewayDevId"] = names[random.randint(0, 1)]
+                    
+            # Adres URL serwera Node
+            url = "http://localhost:4001/api/dane"
 
-        # Nagłówek żądania
-        headers = {'Content-Type': 'application/json'}
+            # Nagłówek żądania
+            headers = {'Content-Type': 'application/json'}
 
-        # Wysłanie żądania POST
-        print(data["Nodes"])
-        response = requests.post(url, headers=headers, data=json.dumps(node_data))
+            # Wysłanie żądania POST
+            print(data["Nodes"])
+            response = requests.post(url, headers=headers, data=json.dumps(node_data))
 
-        # Sprawdzenie statusu odpowiedzi
-        if response.status_code == 200:
-            print("Dane wysłane pomyślnie!")
-        else:
-            print("Błąd:", response.status_code, response.text)
-        time.sleep(interval)
+            # Sprawdzenie statusu odpowiedzi
+            if response.status_code == 200:
+                print("Dane wysłane pomyślnie!")
+            else:
+                print("Błąd:", response.status_code, response.text)
+            time.sleep(interval)
+    except:
+        print("An exception occurred") 
