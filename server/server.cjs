@@ -80,94 +80,90 @@ io.on('connection', async (socket) => {
 
     app.post('/api/dane', async (req, res) => {
         const data = req.body; // Pobranie danych JSON z body żądania
-        const temperatura = data.T;
-        const wilgotnosc = data.W;
-        const szerokosc = data.X;
-        const wysokosc = data.Y;
-        const DevId = data.DevId;
-        const GatewayDevId = data.GatewayDevId;
-    
-        const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${szerokosc}&lon=${wysokosc}`);
-        const house_number = response.data.address.house_number ? response.data.address.house_number : '';
-        const road = response.data.address.road ? response.data.address.road : '';
-        const city = response.data.address.city ? response.data.address.city : '';
-        const town = response.data.address.town ? response.data.address.town : '';
-        const geolocationName = `${road} ${house_number} ${city} ${town}`;
-    
+        const temperature = data.T;
+        const humidity = data.W;
+        const geolocationLatitude = data.X;
+        const geolocationLongitude = data.Y;
+        const devID = data.DevId;
+        const gatewayDevID = data.GatewayDevId;
         let time = new Date(); // Aktualna data i czas
         time.setHours(time.getHours() + 1); // Dodanie godziny
         time = time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[0].split("-").reverse().join("/") + " " + time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[1]; // Formatowanie daty i czasu
-    
-        const database = client.db('BragerLoRaWanNetwork');
-        const devices = database.collection('Devices');
-    
-        // Sprawdzenie, czy dokument z tym DevID już istnieje
-        const existingDevice = await devices.findOne({ DevID: DevId });
-    
-        if (existingDevice) {
-            // Jeśli dokument istnieje, aktualizujemy go
-            await devices.updateOne(
-                { DevID: DevId },
-                {
-                    $set: {
-                        temperature: temperatura,
-                        humidity: wilgotnosc,
-                        geolocationName: geolocationName,
-                        gatewayDevID: GatewayDevId,
-                        geolocationLatitude: szerokosc,
-                        geolocationLongitude: wysokosc,
-                        time: time
+        
+        if(geolocationLatitude === "undefined" || geolocationLongitude === "undefined"){
+            const geolocationName = devID
+
+            const database = client.db('BragerLoRaWanNetwork');
+            const devices = database.collection('Devices');
+
+            const existingDevice = await devices.findOne({ DevID: devID });
+
+            if (existingDevice) {
+                // Jeśli dokument istnieje, aktualizujemy go
+                await devices.updateOne(
+                    { DevID: devID },
+                    {
+                        $set: {
+                            temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time
+                        }
                     }
-                }
-            );
-            console.log(`Dane urządzenia ${ DevId } zostały zaktualizowane.`);
-        } else {
-            // Jeśli dokument nie istnieje, dodajemy go
-            await devices.insertOne({
-                DevID: DevId,
-                temperature: temperatura,
-                humidity: wilgotnosc,
-                geolocationName: geolocationName,
-                gatewayDevID: GatewayDevId,
-                geolocationLatitude: szerokosc,
-                geolocationLongitude: wysokosc,
-                time: time
-            });
-            console.log(`Dane urządzenia ${ DevId } zostały dodane.`);
-        }
-        res.status(200).send('Dane odebrane!')
-    
-        const resultdevices = await devices.find({}).toArray();
-        if (resultdevices.length > 0) {
-            
-            // Iteracja przez wszystkie dokumenty z bazy danych
-            for (let doc of resultdevices) {
-                // Wysłanie danych dla każdego unikalnego DevID
-                socket.emit('endDevices', {
-                    DevID: doc.DevID,
-                    temperature: doc.temperature,
-                    humidity: doc.humidity,
-                    geolocationName: doc.geolocationName,
-                    gatewayDevID: doc.gatewayDevID,
-                    geolocationLatitude: doc.geolocationLatitude,
-                    geolocationLongitude: doc.geolocationLongitude,
-                    time: doc.time
+                );
+                console.log(`Dane urządzenia ${ devID } zostały zaktualizowane lecz brakuje lokalizacji.`);
+            } else {
+                // Jeśli dokument nie istnieje, dodajemy go
+                await devices.insertOne({
+                    DevID: devID, temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time
                 });
-                
+                console.log(`Dane urządzenia ${ devID } zostały dodane do bazy danych bez lokalizacji.`);
             }
-            console.log('dane o urzązeniach zostały wysłane')
-    
-        } else {console.log('Brak danych o urzązeniach w bazie danych.');}
+            res.status(200).send('Dane odebrane!')
+
+            emitDeviceData(socket)
+
+        }else{
+            const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${geolocationLatitude}&lon=${geolocationLongitude}`);
+            const house_number = response.data.address.house_number ? response.data.address.house_number : '';
+            const road = response.data.address.road ? response.data.address.road : '';
+            const city = response.data.address.city ? response.data.address.city : '';
+            const town = response.data.address.town ? response.data.address.town : '';
+            const geolocationName = `${road} ${house_number} ${city} ${town}`;
+
+            const database = client.db('BragerLoRaWanNetwork');
+            const devices = database.collection('Devices');
+        
+            // Sprawdzenie, czy dokument z tym DevID już istnieje
+            const existingDevice = await devices.findOne({ DevID: devID });
+        
+            if (existingDevice) {
+                // Jeśli dokument istnieje, aktualizujemy go
+                await devices.updateOne(
+                    { DevID: devID },
+                    {
+                        $set: { temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time }
+                    }
+                );
+                console.log(`Dane urządzenia ${ devID } zostały zaktualizowane.`);
+            } else {
+                // Jeśli dokument nie istnieje, dodajemy go
+                await devices.insertOne({
+                    DevID: devID, temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time
+                });
+                console.log(`Dane urządzenia ${ devID } zostały dodane do bazy danych.`);
+            }
+            res.status(200).send('Dane odebrane!')
+        
+            emitDeviceData(socket)
+        } 
     });
     
     app.post('/api/config', async (req, res) => {
         const data = req.body;
-        const GatewayDevId = data.GatewayDevId;
-        const szerokosc = data.X;
-        const wysokosc = data.Y;
+        const gatewayDevID = data.GatewayDevId;
+        const gatewayGeolocationLatitude = data.X;
+        const gatewayGeolocationLongitude = data.Y;
         
         // Convert coordinates to address
-        const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${szerokosc}&lon=${wysokosc}`);
+        const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${gatewayGeolocationLatitude}&lon=${gatewayGeolocationLongitude}`);
         const house_number = response.data.address.house_number ? response.data.address.house_number : '';
         const road = response.data.address.road ? response.data.address.road : '';
         const city = response.data.address.city ? response.data.address.city : '';
@@ -178,48 +174,30 @@ io.on('connection', async (socket) => {
         const gateways = database.collection('Gateways');
     
         // Sprawdzenie, czy dokument z tym DevID już istnieje
-        const existingDevice = await gateways.findOne({ GatewayDevID: GatewayDevId });
+        const existingDevice = await gateways.findOne({ GatewayDevID: gatewayDevID });
         
         if (existingDevice) {
             // Jeśli dokument istnieje, aktualizujemy go
             await gateways.updateOne(
-                { GatewayDevID: GatewayDevId },
+                { GatewayDevID: gatewayDevID },
                 {
                     $set: {
-                        geolocationName: geolocationName,
-                        gatewayGeolocationLatitude: szerokosc,
-                        gatewayGeolocationLongitude: wysokosc,
+                        geolocationName, gatewayGeolocationLatitude, gatewayGeolocationLongitude,
                     }
                 }
             );
-            console.log(`Dane gatewaya ${ GatewayDevId } zostały zaktualizowane.`);
+            console.log(`Dane gatewaya ${ gatewayDevID } zostały zaktualizowane.`);
         } else {
             // Jeśli dokument nie istnieje, dodajemy go
             await gateways.insertOne({
-                GatewayDevID: GatewayDevId,
-                geolocationName: geolocationName,
-                gatewayGeolocationLatitude: szerokosc,
-                gatewayGeolocationLongitude: wysokosc,
+                gatewayDevID, geolocationName, gatewayGeolocationLatitude, gatewayGeolocationLongitude,
             });
-            console.log(`Dane gatewaya ${ GatewayDevId } zostały dodane.`);
+            console.log(`Dane gatewaya ${ gatewayDevID } zostały dodane.`);
         }
         res.status(200).send('Dane odebrane!')
-    
-        const resultgateways = await gateways.find({}).toArray();
-        if (resultgateways.length > 0) {
-    
-            for (let doc of resultgateways) {
-                // Wysłanie danych dla każdego unikalnego DevID
-                socket.emit('gateways', {  
-                    gatewayDevID: doc.GatewayDevID,
-                    geolocationName: doc.geolocationName,
-                    geolocationLatitude: doc.gatewayGeolocationLatitude,
-                    geolocationLongitude: doc.gatewayGeolocationLongitude,
-                });
-                
-            }
-            console.log('dane o bramkach zostały wysłane')
-        }else {console.log('Brak danych o bramkach w bazie danych.');}
+        
+        emitGatewayData(socket)
+
     });
 
     //sprawdzanie hasła
@@ -237,6 +215,56 @@ io.on('connection', async (socket) => {
         }
     });
 });
+
+
+
+async function emitDeviceData(socket) {
+    const database = client.db('BragerLoRaWanNetwork');
+    const devices = database.collection('Devices');
+    const resultdevices = await devices.find({}).toArray();
+
+    if (resultdevices.length > 0) {
+        // Iteracja przez wszystkie dokumenty z bazy danych
+        for (let doc of resultdevices) {
+            // Wysłanie danych dla każdego unikalnego DevID
+            socket.emit('endDevices', {
+                DevID: doc.DevID,
+                temperature: doc.temperature,
+                humidity: doc.humidity,
+                geolocationName: doc.geolocationName,
+                gatewayDevID: doc.gatewayDevID,
+                geolocationLatitude: doc.geolocationLatitude,
+                geolocationLongitude: doc.geolocationLongitude,
+                time: doc.time
+            });
+            console.log('dane o urzązeniach zostały wysłane');
+        }
+    } else {
+        console.log('Brak danych o urzązeniach w bazie danych.');
+    }
+}
+
+async function emitGatewayData(socket) {
+    const database = client.db('BragerLoRaWanNetwork');
+    const gateways = database.collection('Gateways');
+    const resultgateways = await gateways.find({}).toArray();
+
+    if (resultgateways.length > 0) {
+        // Iteracja przez wszystkie dokumenty z bazy danych
+        for (let doc of resultgateways) {
+            // Wysłanie danych dla każdego unikalnego DevID
+            socket.emit('gateways', {
+                gatewayDevID: doc.GatewayDevID,
+                geolocationName: doc.geolocationName,
+                geolocationLatitude: doc.gatewayGeolocationLatitude,
+                geolocationLongitude: doc.gatewayGeolocationLongitude,
+            });
+            console.log('dane o bramkach zostały wysłane');
+        }
+    } else {
+        console.log('Brak danych o bramkach w bazie danych.');
+    }
+}
 
 
 
