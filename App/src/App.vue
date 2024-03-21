@@ -1,24 +1,31 @@
 <template>
   <div class="w-screen h-screen">
-    <div :class="{'w-48 h-16 m-10 p-3': !isClicked, 'w-96 h-screen m-0 rounded-r-none p-4 cursor-default': isClicked}" class="z-20 bg-background rounded-2xl cursor-pointer  fixed right-0 flex justify-start items-center transition-all duration-500 ease-in-out flex-col">
+    <div :class="{'w-48 h-16 m-10 p-3 cursor-pointer': !isClicked, 'w-96 h-screen m-0 rounded-r-none p-4 cursor-default': isClicked}" class="z-20 bg-background rounded-2xl fixed right-0 flex justify-start items-center transition-all duration-500 ease-in-out flex-col">
       <h1 class="text-white text-3xl font-semibold cursor-pointer" @click="toggleAdminPanel">Admin</h1>
       <div v-if="isClicked" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <input v-if="isClicked && !isValid" type="password" v-model="passwordInput" placeholder="Wpisz hasło" @keyup.enter="checkPassword" class="p-2 rounded-md text-background w-4/5"/>
-      <ul v-if="isClicked && isValid" class="text-white list-outside flex flex-col gap-4" >
+      <ul v-if="isClicked && isValid && undefinedDevices.length > 0" class="text-white list-outside flex flex-col gap-4" >
         <li v-for="deviceId in undefinedDevices" :key="deviceId" class="flex items-center flex-col gap-2">
           <h2 class="text-xl font-semibold">{{ deviceId }}</h2>
-          <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].latitude : ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-4/5"/>
-          <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].longitude : ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-4/5"/>
+          <div class="flex gap-2">
+            <button class="bg-white text-background p-2 rounded-md flex items-center justify-center w-1/6" @click="selectMarker(deviceId)">
+              <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png" class="w-1/2" />
+            </button>
+            <div class="gap-2 flex flex-col">
+              <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].latitude : ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+              <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].longitude : ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+            </div>
+          </div>
         </li>
         <button class="bg-white text-background p-2 rounded-lg" @click="sendDeviceLocations">Wyślij dane o lokalizacji tych urządzeń</button>
       </ul>
-      <div v-if="isClicked && isValid" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
+      <div v-if="isClicked && isValid && undefinedDevices.length > 0" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <h2 v-if="isClicked && isValid" class="text-xl font-semibold text-white mb-2">Zaplanuj aktualizacje</h2>
       <input v-if="isClicked && isValid" type="datetime-local" class="p-2 rounded-md text-background w-1/2"/>
       <button v-if="isClicked && isValid" class="p-2 rounded-md text-background w-1/3 bg-white m-2">ZAPlanuj</button>
     </div>
     <div class="w-screen h-screen">
-      <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]">
+      <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]" @click="handleMapClick">
         <l-tile-layer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
         <l-marker v-for="sensor in sensors" :lat-lng="[sensor.geolocationLatitude, sensor.geolocationLongitude]" :icon="yellowIcon">
           <l-popup>
@@ -57,6 +64,9 @@ let undefinedDevices = ref([]);
 let addedUndefinedDevices = []; // Tablica do śledzenia dodanych urządzeń
 let isValid = ref(false);
 let deviceLocation = ref({});
+const markerSelected = ref(false);
+let selectedDeviceId = ref(null);
+
 
 socket.on('connect', () => {
     console.log('Połączono z serwerem');
@@ -110,6 +120,17 @@ const yellowIcon = L.icon({
   shadowSize: [41, 41]
 });
 
+const handleMapClick = (event) => {
+  if (selectedDeviceId.value !== null) { // Sprawdź, czy jest wybrane jakieś urządzenie
+    const { lat, lng } = event.latlng;
+    deviceLocation.value[selectedDeviceId.value] = { // Przypisz lokalizację do wybranego urządzenia
+      latitude: lat,
+      longitude: lng
+    };
+    selectedDeviceId.value = null; // Zresetuj ID wybranego urządzenia po ustawieniu lokalizacji
+  }
+};
+
 //Admin panel
 //przycisk animacja
 let isClicked = ref(false);
@@ -149,24 +170,26 @@ const updateLongitude = (deviceId, value) => {
   };
 };
 
-
-
+const selectMarker = (deviceId) => {
+  selectedDeviceId.value = deviceId; // Zaktualizuj ID wybranego urządzenia
+};
 
 const sendDeviceLocations = () => {
-    const locations = Object.entries(deviceLocation.value).map(([deviceId, location]) => ({
-        deviceId,
-        latitude: location?.latitude, // Sprawdź, czy location istnieje
-        longitude: location?.longitude // Sprawdź, czy location istnieje
-    }));
-    socket.emit('deviceLocations', locations);
-    console.log('Dane o lokalizacji urządzeń zostały wysłane:', locations);
+  const locations = Object.entries(deviceLocation.value).map(([deviceId, location]) => ({
+    deviceId,
+    latitude: location?.latitude,
+    longitude: location?.longitude
+  }));
+  socket.emit('deviceLocations', locations);
+  console.log('Dane o lokalizacji urządzeń zostały wysłane:', locations);
 
-    // Usunięcie urządzenia z listy undefinedDevices
-    locations.forEach(location => {
-        const index = undefinedDevices.value.indexOf(location.deviceId);
-        if (index !== -1) {
-            undefinedDevices.value.splice(index, 1); // Usuń element z tablicy
-        }
-    });
+  // Usunięcie urządzenia z listy undefinedDevices
+  locations.forEach(location => {
+    const index = undefinedDevices.value.indexOf(location.deviceId);
+    if (index !== -1) {
+      undefinedDevices.value.splice(index, 1);
+    }
+  });
 };
+
 </script>
