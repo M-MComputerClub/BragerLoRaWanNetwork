@@ -15,8 +15,8 @@
               <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png" class="w-1/2" />
             </button>
             <div class="gap-2 flex flex-col">
-              <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].latitude : ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
-              <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId] ? deviceLocation[deviceId].longitude : ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+              <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId]?.latitude || ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+              <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId]?.longitude || ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
             </div>
           </div>
         </li>
@@ -55,60 +55,53 @@ import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer, LMarker, LPopup, LCircle } from "@vue-leaflet/vue-leaflet";
 import { ref } from "vue";
 import io from 'socket.io-client';
+
 const socket = io('http://192.168.29.144:4001');
 
 let zoom = 14;
-let latitude = ref(null)
-let longitude = ref(null)
-let locationLoaded = ref(false)
-let sensors = ref([])
-let gateways = ref([])
+let latitude = ref(null);
+let longitude = ref(null);
+let locationLoaded = ref(false);
+let sensors = ref([]);
+let gateways = ref([]);
 let undefinedDevices = ref([]);
-let addedUndefinedDevices = []; // Tablica do śledzenia dodanych urządzeń
+let addedUndefinedDevices = [];
 let isValid = ref(false);
 let deviceLocation = ref({});
-const markerSelected = ref(false);
 let selectedDeviceId = ref(null);
+let isClicked = ref(false);
+let passwordInput = ref("");
 
-
-socket.on('connect', () => {
-    console.log('Połączono z serwerem');
-});
+socket.on('connect', () => {});
 
 socket.on('endDevices', (data) => {
     if (data.geolocationLatitude === "undefined" || data.geolocationLongitude === "undefined") {
-        if (!addedUndefinedDevices.includes(data.DevID)) { // Sprawdź, czy DevID nie został jeszcze dodany
-            undefinedDevices.value.push(data.DevID); // Dodaj DevID urządzenia do listy undefinedDevices
-            addedUndefinedDevices.push(data.DevID); // Dodaj DevID do tablicy śledzenia
-        }
+      if (!addedUndefinedDevices.includes(data.DevID)) {
+        undefinedDevices.value.push(data.DevID);
+        addedUndefinedDevices.push(data.DevID);
+      }
     } else {
-        sensors.value.push(data);
+      sensors.value.push(data);
     }
 });
 
 socket.on('gateways', (data) => {
-    // console.log('Otrzymano dane o bramkach:', data);
     gateways.value.push(data);
 });
 
-socket.on('disconnect', () => {
-    console.log('Rozłączono z serwerem');
-});
+socket.on('disconnect', () => {});
 
 navigator.geolocation.getCurrentPosition(position => {
-    latitude.value = Number(position.coords.latitude)
-    longitude.value = Number(position.coords.longitude)
-    locationLoaded.value = true
+  latitude.value = Number(position.coords.latitude);
+  longitude.value = Number(position.coords.longitude);
+  locationLoaded.value = true;
 }, error => {
-    console.log("Geolokalizacja nie jest obsługiwana przez tę przeglądarkę.");
-    zoom = 5;
-    latitude.value = 51.4100
-    longitude.value = 19.7051
-    locationLoaded.value = true
+  zoom = 5;
+  latitude.value = 51.4100;
+  longitude.value = 19.7051;
+  locationLoaded.value = true;
 });
 
-
-//styl znacznika
 const greenIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -128,20 +121,15 @@ const yellowIcon = L.icon({
 });
 
 const handleMapClick = (event) => {
-  if (selectedDeviceId.value !== null) { // Sprawdź, czy jest wybrane jakieś urządzenie
+  if (selectedDeviceId.value !== null) {
     const { lat, lng } = event.latlng;
-    deviceLocation.value[selectedDeviceId.value] = { // Przypisz lokalizację do wybranego urządzenia
+    deviceLocation.value[selectedDeviceId.value] = {
       latitude: lat,
       longitude: lng
     };
-    selectedDeviceId.value = null; // Zresetuj ID wybranego urządzenia po ustawieniu lokalizacji
+    selectedDeviceId.value = null;
   }
 };
-
-//Admin panel
-//przycisk animacja
-let isClicked = ref(false);
-let passwordInput = ref("");
 
 const toggleAdminPanel = () => {
   isClicked.value = !isClicked.value;
@@ -149,16 +137,12 @@ const toggleAdminPanel = () => {
 
 const checkPassword = () => {
   socket.emit("password?", passwordInput.value);
-  console.log("Hasło wysłane");
 };
 
-// subskrypcja na zdarzenie 'password!' jest wykonywana tylko raz
 socket.on('password!', (isValidValue) => {
   if(isValidValue){
-    console.log("Dostęp do panelu administracyjnego przyznany!");
     isValid.value = true;
   } else {
-    console.log("Błędne hasło!")
     isValid.value = false; 
   }
 });
@@ -178,7 +162,7 @@ const updateLongitude = (deviceId, value) => {
 };
 
 const selectMarker = (deviceId) => {
-  selectedDeviceId.value = deviceId; // Zaktualizuj ID wybranego urządzenia
+  selectedDeviceId.value = deviceId;
 };
 
 const sendDeviceLocations = () => {
@@ -188,9 +172,7 @@ const sendDeviceLocations = () => {
     longitude: location?.longitude
   }));
   socket.emit('deviceLocations', locations);
-  console.log('Dane o lokalizacji urządzeń zostały wysłane:', locations);
 
-  // Usunięcie urządzenia z listy undefinedDevices
   locations.forEach(location => {
     const index = undefinedDevices.value.indexOf(location.deviceId);
     if (index !== -1) {
@@ -198,5 +180,4 @@ const sendDeviceLocations = () => {
     }
   });
 };
-
 </script>
