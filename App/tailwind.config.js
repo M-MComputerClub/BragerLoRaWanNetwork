@@ -8,6 +8,7 @@ export default {
     colors: {
       'background': '#222733',
       'white': '#fff',
+      'color': '#1CBBEE'
     },
     extend: {},
   },
