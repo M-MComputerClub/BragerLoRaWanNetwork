@@ -56,7 +56,7 @@ import { LMap, LTileLayer, LMarker, LPopup, LCircle } from "@vue-leaflet/vue-lea
 import { ref } from "vue";
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.29.144:4001');
+const socket = io('http://localhost:4001');
 
 let zoom = 14;
 let latitude = ref(null);
