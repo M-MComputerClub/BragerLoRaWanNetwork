@@ -15,7 +15,6 @@
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
 #include "manager.h"
-#include "home.h"
 
 #define ss 5
 #define rst 14
@@ -186,6 +185,21 @@ void web(){
       //send(200, "text/html", wifimanager);  
       //send(SPIFFS, indexHtml, "text/html");
     });
+      server.on("/update",
+        HTTP_POST,
+        [](AsyncWebServerRequest * request){},
+        NULL,
+        [](AsyncWebServerRequest * request, uint8_t *data, size_t len,
+        size_t index, size_t total) {
+            // Here goes the code to manage the post request
+            // The data is received on 'data' variable
+            // Parse data
+            Serial.println("UPDATE"); // Just for debug
+            LoRa.beginPacket();
+            LoRa.print("Update");
+            LoRa.endPacket(); 
+            request->send(200, "text/plain", "Some message");
+    });
     
     server.serveStatic("/", SPIFFS, "/");
     
@@ -248,7 +262,7 @@ void web(){
 void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
-  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA
+  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA/////////////////////////////////////////////////////////////////////////////////////////////////////
   while (!Serial);
   Serial.println("LoRa Receiver");
 
@@ -270,7 +284,7 @@ void setup() {
   LoRa.setTxPower(20);
   LoRa.setSpreadingFactor(12);
   Serial.println("LoRa Initializing OK!");
-  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA
+  /////////////////////////////////////////////////////////////////////////////////////////////////////LORA/////////////////////////////////////////////////////////////////////////////////////////////////////
   initSPIFFS();
 
   // Set GPIO 2 as an OUTPUT
