@@ -70,6 +70,22 @@ Password for the administration panel: **admin**
 To run tests, run the following command
 
 ```bash
+  cd App/tests
+```
+
+```bash
+  npm run cypress:open
+```
+
+Then we select the test that interests us from the list:
+
+- visit.cy.js - visits the website
+- adminPanel.cy.js - checks if the admin panel is functioning
+- main.cy.js - main test checking most of the elements on the website
+
+To run tests, run the following command
+
+```bash
   npm run test
 ```
 

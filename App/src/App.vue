@@ -1,7 +1,7 @@
 <template>
   <div class="w-screen h-screen">
     <!-- Admin Panel -->
-    <div :class="{'w-48 h-16 m-5 md:m-10 p-3 cursor-pointer': !isClicked, 'md:w-96 w-full h-1/2 md:h-screen m-0 md:rounded-r-none rounded-b-none p-4 cursor-default overflow-y-auto overflow-x-hidden': isClicked}" class="z-20 bg-background rounded-2xl fixed bottom-0 md:bottom-auto right-0 flex justify-start items-center transition-all duration-500 ease-in-out flex-col">
+    <div :class="{'adminPanel w-48 h-16 m-5 md:m-10 p-3 cursor-pointer': !isClicked, 'md:w-96 w-full h-1/2 md:h-screen m-0 md:rounded-r-none rounded-b-none p-4 cursor-default overflow-y-auto overflow-x-hidden': isClicked}" class="z-20 bg-background rounded-2xl fixed bottom-0 md:bottom-auto right-0 flex justify-start items-center transition-all duration-500 ease-in-out flex-col">
       <h1 class="text-white text-3xl font-semibold cursor-pointer hover:text-color" @click="toggleAdminPanel">Admin</h1>
       <!-- Password Input -->
       <div v-if="isClicked" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
@@ -36,16 +36,16 @@
       <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]" @click="handleMapClick">
         <l-tile-layer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
         <!-- Sensors and Gateways -->
-        <l-marker v-for="sensor in sensors" :lat-lng="[sensor.geolocationLatitude, sensor.geolocationLongitude]" :icon="yellowIcon">
-          <l-popup>
+        <l-marker v-for="sensor in sensors" :lat-lng="[sensor.geolocationLatitude, sensor.geolocationLongitude]" :icon="yellowIcon" class="leaflet-marker-icon-yellow">
+          <l-popup class="leaflet-popup-content">
             <h1 class="text-base font-semibold">AirSensor: {{ sensor.geolocationName }}</h1>
             <p class="text-sm -mb-2">Temperature: <span class="font-bold">{{ sensor.temperature }}°C</span></p>
             <p class="text-sm -mb-2">Humidity: <span class="font-bold">{{ sensor.humidity }}%</span></p>
             <p class="text-sm -mb-2">Data Received at: <span class="font-bold">{{ sensor.time }}</span></p>
           </l-popup>
         </l-marker>
-        <l-marker v-for="gateway in gateways" :lat-lng="[gateway.geolocationLatitude, gateway.geolocationLongitude]" :icon="greenIcon">
-          <l-popup>
+        <l-marker v-for="gateway in gateways" :lat-lng="[gateway.geolocationLatitude, gateway.geolocationLongitude]" :icon="greenIcon" class="leaflet-marker-icon-green">
+          <l-popup class="leaflet-popup-content">
             <h1 class="text-base font-semibold">Gateway: {{ gateway.geolocationName }}</h1>
             <p class="text-sm -mb-2">DevID: <span class="font-bold">{{ gateway.gatewayDevID }}</span></p>
           </l-popup>

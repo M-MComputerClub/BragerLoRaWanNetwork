@@ -1,0 +1,12 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "cypress.config.js",
+  "scripts": {
+    "cypress:open": "cypress open"
+  },
+  "author": "",
+  "license": "ISC"
+}
