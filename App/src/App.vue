@@ -1,12 +1,15 @@
 <template>
   <div class="w-screen h-screen">
+    <!-- Admin Panel -->
     <div :class="{'w-48 h-16 m-5 md:m-10 p-3 cursor-pointer': !isClicked, 'md:w-96 w-full h-1/2 md:h-screen m-0 md:rounded-r-none rounded-b-none p-4 cursor-default overflow-y-auto overflow-x-hidden': isClicked}" class="z-20 bg-background rounded-2xl fixed bottom-0 md:bottom-auto right-0 flex justify-start items-center transition-all duration-500 ease-in-out flex-col">
       <h1 class="text-white text-3xl font-semibold cursor-pointer hover:text-color" @click="toggleAdminPanel">Admin</h1>
+      <!-- Password Input -->
       <div v-if="isClicked" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <div class="flex gap-2">
-        <input v-if="isClicked && !isValid" type="password" v-model="passwordInput" placeholder="Wpisz hasło" @keyup.enter="checkPassword" class="p-2 rounded-md text-background w-4/5 "/>
+        <input v-if="isClicked && !isValid" type="password" v-model="passwordInput" placeholder="Enter password" @keyup.enter="checkPassword" class="p-2 rounded-md text-background w-4/5 "/>
         <button v-if="isClicked && !isValid" class="bg-white text-background p-2 rounded-lg font-semibold hover:bg-color hover:text-white" @click="checkPassword">Enter</button>
       </div>
+      <!-- Undefined Devices -->
       <ul v-if="isClicked && isValid && undefinedDevices.length > 0" class="text-white list-outside flex flex-col gap-4" >
         <li v-for="deviceId in undefinedDevices" :key="deviceId" class="flex items-center flex-col gap-2">
           <h2 class="text-xl font-semibold">{{ deviceId }}</h2>
@@ -15,27 +18,30 @@
               <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png" class="w-1/2" />
             </button>
             <div class="gap-2 flex flex-col">
-              <input type="text" placeholder="Szerokość geograficzna" :value="deviceLocation[deviceId]?.latitude || ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
-              <input type="text" placeholder="Wysokość geograficzna" :value="deviceLocation[deviceId]?.longitude || ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+              <input type="text" placeholder="Latitude" :value="deviceLocation[deviceId]?.latitude || ''" @input="updateLatitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
+              <input type="text" placeholder="Longitude" :value="deviceLocation[deviceId]?.longitude || ''" @input="updateLongitude(deviceId, $event.target.value)" class="p-2 rounded-md text-background w-full"/>
             </div>
           </div>
         </li>
-        <button class="bg-white text-background p-2 rounded-lg hover:bg-color hover:text-white" @click="sendDeviceLocations">Wyślij dane o lokalizacji tych urządzeń</button>
+        <button class="bg-white text-background p-2 rounded-lg hover:bg-color hover:text-white" @click="sendDeviceLocations">Send Device Locations</button>
       </ul>
+      <!-- Plan Updates -->
       <div v-if="isClicked && isValid && undefinedDevices.length > 0" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
-      <h2 v-if="isClicked && isValid" class="text-xl font-semibold text-white mb-2">Zaplanuj aktualizacje</h2>
+      <h2 v-if="isClicked && isValid" class="text-xl font-semibold text-white mb-2">Plan Updates</h2>
       <input v-if="isClicked && isValid" type="datetime-local" class="p-2 rounded-md text-background w-1/2"/>
-      <button v-if="isClicked && isValid" class="p-2 rounded-md text-background w-1/3 bg-white m-2 hover:bg-color hover:text-white">ZAPlanuj</button>
+      <button v-if="isClicked && isValid" class="p-2 rounded-md text-background w-1/3 bg-white m-2 hover:bg-color hover:text-white">Plan</button>
     </div>
+    <!-- Map -->
     <div class="w-screen h-screen">
       <l-map class="z-10" v-if="locationLoaded" ref="map" v-model:zoom="zoom" :center="[latitude, longitude]" @click="handleMapClick">
         <l-tile-layer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
+        <!-- Sensors and Gateways -->
         <l-marker v-for="sensor in sensors" :lat-lng="[sensor.geolocationLatitude, sensor.geolocationLongitude]" :icon="yellowIcon">
           <l-popup>
-            <h1 class="text-base font-semibold">AirSenso: {{ sensor.geolocationName }}</h1>
-            <p class="text-sm -mb-2">Temperatura: <span class="font-bold">{{ sensor.temperature }}°C</span></p>
-            <p class="text-sm -mb-2">Wilgotność: <span class="font-bold">{{ sensor.humidity }}%</span></p>
-            <p class="text-sm -mb-2">Dane odebrane o: <span class="font-bold">{{ sensor.time }}</span></p>
+            <h1 class="text-base font-semibold">AirSensor: {{ sensor.geolocationName }}</h1>
+            <p class="text-sm -mb-2">Temperature: <span class="font-bold">{{ sensor.temperature }}°C</span></p>
+            <p class="text-sm -mb-2">Humidity: <span class="font-bold">{{ sensor.humidity }}%</span></p>
+            <p class="text-sm -mb-2">Data Received at: <span class="font-bold">{{ sensor.time }}</span></p>
           </l-popup>
         </l-marker>
         <l-marker v-for="gateway in gateways" :lat-lng="[gateway.geolocationLatitude, gateway.geolocationLongitude]" :icon="greenIcon">
@@ -74,6 +80,7 @@ let passwordInput = ref("");
 
 socket.on('connect', () => {});
 
+// Receive Sensor and Gateway Data
 socket.on('endDevices', (data) => {
     if (data.geolocationLatitude === "undefined" || data.geolocationLongitude === "undefined") {
       if (!addedUndefinedDevices.includes(data.DevID)) {
@@ -91,6 +98,7 @@ socket.on('gateways', (data) => {
 
 socket.on('disconnect', () => {});
 
+// Fetch User's Geolocation
 navigator.geolocation.getCurrentPosition(position => {
   latitude.value = Number(position.coords.latitude);
   longitude.value = Number(position.coords.longitude);
@@ -102,6 +110,7 @@ navigator.geolocation.getCurrentPosition(position => {
   locationLoaded.value = true;
 });
 
+// Leaflet Icons
 const greenIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -120,6 +129,7 @@ const yellowIcon = L.icon({
   shadowSize: [41, 41]
 });
 
+// Handle Map Click Event
 const handleMapClick = (event) => {
   if (selectedDeviceId.value !== null) {
     const { lat, lng } = event.latlng;
@@ -131,14 +141,17 @@ const handleMapClick = (event) => {
   }
 };
 
+// Toggle Admin Panel
 const toggleAdminPanel = () => {
   isClicked.value = !isClicked.value;
 };
 
+// Check Password
 const checkPassword = () => {
   socket.emit("password?", passwordInput.value);
 };
 
+// Receive Password Validation
 socket.on('password!', (isValidValue) => {
   if(isValidValue){
     isValid.value = true;
@@ -147,6 +160,7 @@ socket.on('password!', (isValidValue) => {
   }
 });
 
+// Update Latitude of Device
 const updateLatitude = (deviceId, value) => {
   deviceLocation.value[deviceId] = {
     ...deviceLocation.value[deviceId],
@@ -154,6 +168,7 @@ const updateLatitude = (deviceId, value) => {
   };
 };
 
+// Update Longitude of Device
 const updateLongitude = (deviceId, value) => {
   deviceLocation.value[deviceId] = {
     ...deviceLocation.value[deviceId],
@@ -161,10 +176,12 @@ const updateLongitude = (deviceId, value) => {
   };
 };
 
+// Select Marker on Map
 const selectMarker = (deviceId) => {
   selectedDeviceId.value = deviceId;
 };
 
+// Send Device Locations to Server
 const sendDeviceLocations = () => {
   const locations = Object.entries(deviceLocation.value).map(([deviceId, location]) => ({
     deviceId,

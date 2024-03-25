@@ -6,11 +6,11 @@ const app = express();
 const { MongoClient } = require('mongodb');
 const axios = require('axios');
 
-// Ustawienie middleware dla CORS i obsługi JSON
+// Set up middleware for CORS and JSON handling
 app.use(cors());
 app.use(express.json());
 
-// Tworzenie serwera HTTP
+// Create HTTP server
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
@@ -19,8 +19,7 @@ const io = socketIo(server, {
     }
 });
 
-// Inicjalizacja bazy danych MongoDB (przykład - użyj swojej bazy danych)
-//Połączenie z bazą danych
+// Initialize MongoDB database connection
 const uri = 'mongodb://127.0.0.1:27017';
 const client = new MongoClient(uri);
 
@@ -35,15 +34,14 @@ async function connectToDB() {
 
 connectToDB();
 
+// Emit device data to client function
 async function emitDeviceData(socket) {
     const database = client.db('BragerLoRaWanNetwork');
     const devices = database.collection('Devices');
     const resultdevices = await devices.find({}).toArray();
 
     if (resultdevices.length > 0) {
-        // Iteracja przez wszystkie dokumenty z bazy danych
         for (let doc of resultdevices) {
-            // Wysłanie danych dla każdego unikalnego DevID
             socket.emit('endDevices', {
                 DevID: doc.DevID,
                 temperature: doc.temperature,
@@ -61,15 +59,14 @@ async function emitDeviceData(socket) {
     }
 }
 
+// Emit gateway data to client function
 async function emitGatewayData(socket) {
     const database = client.db('BragerLoRaWanNetwork');
     const gateways = database.collection('Gateways');
     const resultgateways = await gateways.find({}).toArray();
 
     if (resultgateways.length > 0) {
-        // Iteracja przez wszystkie dokumenty z bazy danych
         for (let doc of resultgateways) {
-            // Wysłanie danych dla każdego unikalnego DevID
             socket.emit('gateways', {
                 gatewayDevID: doc.GatewayDevID,
                 geolocationName: doc.geolocationName,
@@ -83,16 +80,17 @@ async function emitGatewayData(socket) {
     }
 }
 
-// Obsługa połączenia Socket.IO
-// CO się dzieje gdy użytkownik aplikacji uruchomi aplikacjie
+// Socket.IO connection handling
 io.on('connection', async (socket) => {
     console.log('Nowe połączenie Socket.IO');
     
+     // Emit device data to client
     emitDeviceData(socket);
 
+    // Emit gateway data to client
     emitGatewayData(socket);
 
-    //sprawdzanie hasła
+    // Handle password verification
     socket.on('password?', async (password) => {
         console.log("123")
         console.log('Hasło odebrane!')
@@ -109,14 +107,13 @@ io.on('connection', async (socket) => {
         }
     });
 
+    // Receive and handle device locations
     socket.on('deviceLocations', async (locations) => {
         console.log(locations);
 
-    
         const database = client.db('BragerLoRaWanNetwork');
         const devices = database.collection('Devices');
     
-        // Iteracja przez każde przesłane miejsce lokalizacji
         for (let location of locations) {
             const { deviceId, latitude, longitude } = location;
             const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
@@ -126,7 +123,7 @@ io.on('connection', async (socket) => {
             const town = response.data.address.town ? response.data.address.town : '';
             const geolocationName = `${road} ${house_number} ${city} ${town}`;
     
-            // Aktualizacja dokumentu w bazie danych dla danego deviceId
+            //Database update
             await devices.updateOne(
                 { DevID: deviceId },
                 {
@@ -143,7 +140,7 @@ io.on('connection', async (socket) => {
     });
 });
 
-
+// Endpoint to receive gateway configuration
 app.post('/api/config', async (req, res) => {
     const data = req.body;
     const gatewayDevID = data.GatewayDevId;
@@ -161,11 +158,9 @@ app.post('/api/config', async (req, res) => {
     const database = client.db('BragerLoRaWanNetwork');
     const gateways = database.collection('Gateways');
 
-    // Sprawdzenie, czy dokument z tym DevID już istnieje
     const existingDevice = await gateways.findOne({ GatewayDevID: gatewayDevID });
     
-    if (existingDevice) {
-        // Jeśli dokument istnieje, aktualizujemy go
+    if (existingDevice) { //exists
         await gateways.updateOne(
             { GatewayDevID: gatewayDevID },
             {
@@ -175,8 +170,7 @@ app.post('/api/config', async (req, res) => {
             }
         );
         console.log(`Dane gatewaya ${ gatewayDevID } zostały zaktualizowane.`);
-    } else {
-        // Jeśli dokument nie istnieje, dodajemy go
+    } else { //does not exist
         await gateways.insertOne({
             gatewayDevID, geolocationName, gatewayGeolocationLatitude, gatewayGeolocationLongitude,
         });
@@ -188,14 +182,15 @@ app.post('/api/config', async (req, res) => {
 
 });
 
+// Endpoint to receive device data
 app.post('/api/dane', async (req, res) => {
-    const data = req.body; // Pobranie danych JSON z body żądania
+    const data = req.body;
     const temperature = data.T;
     const humidity = data.W;
     const devID = data.DevId;
     const gatewayDevID = data.GatewayDevId;
-    let time = new Date(); // Aktualna data i czas
-    time.setHours(time.getHours() + 1); // Dodanie godziny
+    let time = new Date();
+    time.setHours(time.getHours() + 1);
     time = time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[0].split("-").reverse().join("/") + " " + time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[1]; // Formatowanie daty i czasu
     const geolocationLatitude = "undefined";
     const geolocationLongitude = "undefined";
@@ -207,8 +202,7 @@ app.post('/api/dane', async (req, res) => {
 
         const existingDevice = await devices.findOne({ DevID: devID });
 
-        if (existingDevice) {
-            // Jeśli dokument istnieje, aktualizujemy go
+        if (existingDevice) { //exists
             await devices.updateOne(
                 { DevID: devID },
                 {
@@ -218,8 +212,7 @@ app.post('/api/dane', async (req, res) => {
                 }
             );
             console.log(`Dane urządzenia ${ devID } zostały zaktualizowane.`);
-        } else {
-            // Jeśli dokument nie istnieje, dodajemy go
+        } else { //does not exist
             await devices.insertOne({
                 DevID: devID, temperature, humidity, geolocationName, gatewayDevID, geolocationLatitude, geolocationLongitude, time
             });
@@ -231,9 +224,7 @@ app.post('/api/dane', async (req, res) => {
 
 });
 
-
-
-// Serwer HTTP nasłuchuje na porcie 4001
+// Start HTTP server listening on port 4001
 server.listen(4001, () => {
     console.log('Serwer nasłuchuje na porcie 4001');
 });
