@@ -7,7 +7,7 @@ We have developed software for the ESP32 with the RFM95W module, which communica
 
 
 
-![Logo](img/bragerLogo.png)
+![Logo](img/bragerLogo.png) 
 
 
 ## Screenshots
