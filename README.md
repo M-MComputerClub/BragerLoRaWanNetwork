@@ -9,7 +9,7 @@ A brief description of what this project does and who it's for
 ## Screenshots
 
 #### Desktop
-![Desktop Admin panel close](./img/desktopAdminClose)
+![Desktop Admin panel close](img/desktopAdminClose.png)
 
 ![Desktop Admin panel open](https://media.discordapp.net/attachments/1221738952894054420/1221739032313069579/Opera_Zrzut_ekranu_2024-03-25_093138_localhost.png?ex=6613ac24&is=66013724&hm=8291491ea00f43e3a18768facc379233db6ffd593ed19a3dab1a0b2e8fdcca68&=&format=webp&quality=lossless&width=810&height=411)
 
