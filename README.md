@@ -99,6 +99,9 @@ Password for the administration panel: **admin**
 
 ### Server
 
+Install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
+Install [Node.js](https://nodejs.org/en/download)
+
 Go to the server directory
 
 ```bash
@@ -139,7 +142,7 @@ The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The ga
   cd ESP32Code/gateway
 ```
 
-The end device should be flashed with the code from the node folder
+The end device should be flashed with the code from the endDevice folder
 
 ```bash
   cd ESP32Code/endDevice
@@ -164,10 +167,24 @@ and connect the Asair temperature and humidity sensor.
 ## Running Tests
 
 To run tests, run the following command
-
 ```bash
-  npm run test
+  cd App
 ```
+```bash
+  npm install
+```
+```bash
+  cd App/tests
+```
+```bash
+  npm run cypress:open
+```
+
+Then we select the test that interests us from the list:
+
+- visit.cy.js - visits the website
+- adminPanel.cy.js - checks if the admin panel is functioning
+- main.cy.js - main test checking most of the elements on the website
 
 
 ## Authors

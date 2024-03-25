@@ -18,6 +18,9 @@ A server that handles communication between AirSenso sensors from the [Brager](h
 
 ## Run Locally
 
+Install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
+Install [Node.js](https://nodejs.org/en/download)
+
 Clone the project
 
 ```bash
