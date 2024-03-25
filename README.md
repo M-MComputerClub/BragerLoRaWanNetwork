@@ -61,6 +61,12 @@ We have developed software for the ESP32 with the RFM95W module, which communica
 
 ## Run Locally
 
+Install [Node.js](https://nodejs.org/en/download) if u dont have 
+For check it use this command
+```bash
+  node --version
+```
+
 Clone the project
 
 ```bash
@@ -79,11 +85,6 @@ Go to the website app directory
 
 ```bash
   cd App
-```
-
-Install [Node.js](https://nodejs.org/en/download) if u dont have to check it use this command
-```bash
-  node --version
 ```
 
 Install dependencies
