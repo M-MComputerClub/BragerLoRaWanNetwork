@@ -164,11 +164,15 @@ and connect the Asair temperature and humidity sensor.
 ## Running Tests
 
 To run tests, run the following command
-
+```bash
+  cd App
+```
+```bash
+  npm install
+```
 ```bash
   cd App/tests
 ```
-
 ```bash
   npm run cypress:open
 ```
