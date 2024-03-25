@@ -11,7 +11,7 @@ const server = http.createServer(app);
 app.post('/api/dane', async (req, res) => {
     const data = req.body; // Pobranie danych JSON z body żądania
     console.log(data);
-    res.status(200).send('Dane odebrane!')
+    res.status(200).send("10")
 });
 // Serwer HTTP nasłuchuje na porcie 4001
 server.listen(4001, () => {
