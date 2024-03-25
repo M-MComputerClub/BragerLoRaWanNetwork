@@ -161,9 +161,3 @@ To run tests, run the following command
 - [Mateusz Trzmiel](https://github.com/TRZMlEL)
 - [Maciej Matysiak](https://github.com/ItsMaciek)
 - [Maksymilian Zwierz](https://github.com/Zwierzu2115)
-
-
-
-
-
-
