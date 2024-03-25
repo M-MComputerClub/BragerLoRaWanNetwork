@@ -113,7 +113,6 @@ io.on('connection', async (socket) => {
 
     // Handle password verification
     socket.on('password?', async (password) => {
-        console.log("123")
         console.log('Hasło odebrane!')
         const database = client.db('BragerLoRaWanNetwork');
         const accounts = database.collection('Accounts');
