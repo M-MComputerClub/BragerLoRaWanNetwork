@@ -10,6 +10,11 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  15        /* Time ESP32 will go to sleep (in seconds) */
+
+RTC_DATA_ATTR int bootCount = 0;
+
 #define DHT11_PIN 27
 
 DHT dht(DHT11_PIN, DHT11);
@@ -60,7 +65,13 @@ void update(){
 void setup() {
   //initialize Serial Monitor
   Serial.begin(115200);
-  update();
+  
+  //Increment boot number and print it every reboot
+  ++bootCount;
+  Serial.println("Boot number: " + String(bootCount));
+
+  
+
   while (!Serial);
     Serial.println("LoRa Sender");
 
@@ -118,20 +129,31 @@ void loop() {
     LoRa.endPacket(true); // true = async / non-blocking mode
 
     counter++;
-  } else {
-    int packetSize = LoRa.parsePacket();
-    if (packetSize) {
-      // received a packet
-      Serial.print("Received packet '");
+  
+    while(!runEvery(5000)){
+      int packetSize = LoRa.parsePacket();
+      if (packetSize) {
+        // received a packet
+        Serial.print("Received packet '");
 
-      // read packet
-      while (LoRa.available()) {
-        Serial.print((char)LoRa.read());
+        // read packet
+        while (LoRa.available()) {
+          Serial.print((char)LoRa.read());
+        }
+
+        // print RSSI of packet
+        Serial.print("' with RSSI ");
+        Serial.println(LoRa.packetRssi());
+        update();
       }
 
-      // print RSSI of packet
-      Serial.print("' with RSSI ");
-      Serial.println(LoRa.packetRssi());
+    esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+    Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +" Seconds");
+
+    Serial.println("Going to sleep now");
+    delay(1000);
+    Serial.flush(); 
+    esp_deep_sleep_start();
     }
   }
 }
