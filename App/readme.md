@@ -1,7 +1,7 @@
 
 # Brager LoRaWan Network for AirSenso sensor Web Aplication
 
-Aplikacja do zarządzania czujnikami AirSenso [Brager](https://www.brager.pl) company oraz podglądu ich danych.
+An application for managing AirSenso sensors from the [Brager](https://www.brager.pl) company and viewing their data on the map.
 
 ![Logo](../img/bragerLogo.png)
 
