@@ -3,7 +3,7 @@
 
 A server that handles communication between AirSenso sensors from the [Brager](https://www.brager.pl) company, the LoRaWan gateway, and a web application, and stores data in a MongoDB database.
 
-![Logo](img/bragerLogo.png)
+![Logo](../img/bragerLogo.png)
 
 ## Tech Stack
 
