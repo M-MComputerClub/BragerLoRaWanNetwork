@@ -1,34 +1,111 @@
-# Brager LoRaWan Network
 
-A brief description of what this project does and who it's for
+# Brager LoRaWan Network for AirSenso sensor
+
+The project is focused on implementing communication between AirSenso sensors from the [Brager](https://www.brager.pl) company and a server using LoRa technology.
+
+We have developed software for the ESP32 with the RFM95W module, which communicates with a LoRaWan gateway. This gateway also operates on an ESP32 with an RFM95W module and communicates with a server. The server stores data in a MongoDB database and updates it in a web application written in Vue.js.
 
 
-![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
+
+![Logo](img/bragerLogo.png) 
 
 
 ## Screenshots
 
 #### Desktop
-![Desktop Admin panel close](https://media.discordapp.net/attachments/1221738952894054420/1221739032711794698/Opera_Zrzut_ekranu_2024-03-25_093211_localhost.png?ex=6613ac24&is=66013724&hm=624043b675fb560a46a4d9762d5be372c68cab26c631f9b356b49c9a0c13a4c4&=&format=webp&quality=lossless&width=810&height=411)
+![Desktop Admin panel close](img/desktopAdminClose.png)
 
-![Desktop Admin panel open](https://media.discordapp.net/attachments/1221738952894054420/1221739032313069579/Opera_Zrzut_ekranu_2024-03-25_093138_localhost.png?ex=6613ac24&is=66013724&hm=8291491ea00f43e3a18768facc379233db6ffd593ed19a3dab1a0b2e8fdcca68&=&format=webp&quality=lossless&width=810&height=411)
+![Desktop Admin panel open](img/desktopAdminOpen.png)
 
 #### Mobile
-![Mobile Admin panel close](https://media.discordapp.net/attachments/1221738952894054420/1221739032958996520/Opera_Zrzut_ekranu_2024-03-25_093309_localhost.png?ex=6613ac24&is=66013724&hm=ed630e71df4e7d710809737acf790f661284b2951afdf26aa889372d1c8a3f30&=&format=webp&quality=lossless)
+![Mobile Admin panel close](img/mobileAdminClose.png)
 
-![Mobile Admin panel open](https://media.discordapp.net/attachments/1221738952894054420/1221739031935586374/Opera_Zrzut_ekranu_2024-03-25_093335_localhost.png?ex=6613ac24&is=66013724&hm=91d7c02baefca8a1e49863d468df412bf0435bcc15873d2ea3a4559d355f3c0e&=&format=webp&quality=lossless)
+![Mobile Admin panel open](img/mobileAdminOpen.png)
+## Tech Stack
+
+**Client:** Vue.js, Vite.js, TailwindCSS, Leaflet.js, OpenStreetMaps, SocketIo-client
+
+<img align="left" alt="Vue" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg" />
+<img align="left" alt="Vite" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" />
+<img align="left" alt="TailwindCSS" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" />
+<img align="left" alt="Leaflet" width="30px" style="padding-right:10px;" src="https://d2eip9sf3oo6c2.cloudfront.net/tags/images/000/001/096/thumb/leaflet.png" />
+<img align="left" alt="OpenStreetMaps" width="30px" style="padding-right:10px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Openstreetmap_logo.svg/1024px-Openstreetmap_logo.svg.png" />
+<img align="left" alt="SocketIO" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/socketio/socketio-original.svg" />
+<br />
+<br />
+
+**Server:** Node.js, Express, Axios, MongoDB, SocketIo
+
+<img align="left" alt="Nodejs" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" />
+<img align="left" alt="Express" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg" />
+<img align="left" alt="Axios" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/axios/axios-plain.svg" />
+<img align="left" alt="MongoDB" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" />
+<br />
+<br />
+
+**Tests:** CypressIo
+
+
+<img align="left" alt="CypressIO" width="30px" style="padding-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cypressio/cypressio-original.svg" />
+
+<br />
+<br />
+
+**Hardware:** ESP32 Espressif Wroom, RFM95W LoRa module
+
+<img align="left" alt="Espressif" width="30px" style="padding-right:10px;" src="https://seeklogo.com/images/E/espressif-systems-logo-1350B9E771-seeklogo.com.png" />
+<img align="left" alt="LoRa" width="30px" style="padding-right:10px;" src="https://res.cloudinary.com/rs-designspark-live/image/upload/c_limit,w_829/f_auto/v1/article/iot-lora-alliance-logo.svg__25c0b67804da088ad2fd64e8a76b1a3f1ceac250" />
+<img align="left" alt="LoRaWan" width="30px" style="padding-right:10px;" src="https://en.iotvega.com/content/ru/site/technologies/lorawan_logo.png?v2" />
+<br />
+<br />
+
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://link-to-project
+  git clone https://github.com/M-MComputerClub/BragerLoRaWanNetwork
 ```
 
 Go to the project directory
 
 ```bash
-  cd my-project
+  cd BragerLoRaWanNetwork
+```
+
+### Website App
+
+Go to the website app directory
+
+```bash
+  cd App
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Run app
+
+```bash
+  npm run dev
+```
+
+Now go to http://localhost:5173/
+
+Password for the administration panel: **admin**
+
+### Server
+
+Install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
+Install [Node.js](https://nodejs.org/en/download)
+
+Go to the server directory
+
+```bash
+  cd server
 ```
 
 Install dependencies
@@ -40,20 +117,78 @@ Install dependencies
 Start the server
 
 ```bash
-  npm run start
+  node server.cjs
 ```
+
+### Devices simulator in python
+
+Go to the gateway directory
+
+```bash
+  cd ESP32Code/gateway
+```
+
+Start the simulation
+
+```bash
+  python ./GatewaySimulator.py
+```
+
+### Hardware connection
+
+The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The gateway should be flashed with the code from the gateway folder. 
+
+```bash
+  cd ESP32Code/gateway
+```
+
+The end device should be flashed with the code from the endDevice folder
+
+```bash
+  cd ESP32Code/endDevice
+```
+and connect the Asair temperature and humidity sensor.
+
+|    ESP32     |    Sensor   |  RFM95  |Antenna connector|
+|--------------|-------------|---------|-----------------|
+|      2       |-------------|  dio0   |-----------------|
+|      5       |-------------|  NSS    |-----------------|
+|     14       |-------------|  RESET  |-----------------|
+|     18       |-------------|  SCK    |-----------------|
+|     19       |-------------|  MISO   |-----------------|
+|     23       |-------------|  MOSI   |-----------------|
+|     27       |    data     |---------|-----------------|
+|    3.3v      |    3.3v     |  3.3v   |-----------------|
+|     GND      |    GND      |   GND   |       GND       |
+|--------------|-------------|   ANA   |      DATA       |
+
 
 
 ## Running Tests
 
 To run tests, run the following command
-
 ```bash
-  npm run test
+  cd App
 ```
+```bash
+  npm install
+```
+```bash
+  cd App/tests
+```
+```bash
+  npm run cypress:open
+```
+
+Then we select the test that interests us from the list:
+
+- visit.cy.js - visits the website
+- adminPanel.cy.js - checks if the admin panel is functioning
+- main.cy.js - main test checking most of the elements on the website
 
 
 ## Authors
 
-- [@octokatherine](https://www.github.com/octokatherine)
-
+- [Mateusz Trzmiel](https://github.com/TRZMlEL)
+- [Maciej Matysiak](https://github.com/ItsMaciek)
+- [Maksymilian Zwierz](https://github.com/Zwierzu2115)

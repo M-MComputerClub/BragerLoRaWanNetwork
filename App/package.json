@@ -12,7 +12,6 @@
     "@cypress/vite-dev-server": "^5.0.6",
     "@cypress/vue": "^6.0.0",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
-    "cypress": "^13.5.1",
     "leaflet": "^1.9.4",
     "socket.io-client": "^4.7.4",
     "vue": "^3.3.8",
@@ -21,6 +20,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
     "autoprefixer": "^10.4.16",
+    "cypress": "^13.7.1",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "vite": "^5.0.0"
