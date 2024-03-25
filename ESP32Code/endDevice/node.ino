@@ -1,3 +1,4 @@
+//download those libraries
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>  // Biblioteka do obsługi danych JSON
