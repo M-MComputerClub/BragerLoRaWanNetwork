@@ -1,8 +1,3 @@
-
-//Debug lib
-
-//Debug lib
-
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>  // Biblioteka do obsługi danych JSON
@@ -44,39 +39,30 @@ String mac2String(byte ar[]) {
   return s;
 }
 
-void elozelo(){
-    WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.println("");
+void update(){
+  Serial.println("Setting AP (Access Point)");
+  // NULL sets an open Access Point
+  WiFi.softAP("ESP-WIFI-MANAGER", NULL);
 
-  // Wait for connection
-while (WiFi.status() != WL_CONNECTED) {
-  delay(500);
-  Serial.print(".");
-}
-Serial.println("");
-Serial.print("Connected to ");
-Serial.println(ssid);
-Serial.print("IP address: ");
-Serial.println(WiFi.localIP());
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP); 
 
-server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-  request->send(200, "text/plain", "Hi! I am ESP32.");
-});
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hi! I am ESP32.");
+  });
 
-AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
-
-
 }
 
 void setup() {
   //initialize Serial Monitor
   Serial.begin(115200);
- elozelo();
- while (!Serial);
-  Serial.println("LoRa Sender");
+  update();
+  while (!Serial);
+    Serial.println("LoRa Sender");
 
   //setup LoRa transceiver module
   LoRa.setPins(ss, rst, dio0);
@@ -103,32 +89,63 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("Sending packet: ");
+  if (runEvery(5000)) { // repeat every 5000 millis
 
-  //Send LoRa packet to receiver
-  LoRa.beginPacket();
-  //LoRa.print("hello ");
-  //LoRa.print(counter);
+    Serial.print("Sending packet non-blocking: ");
+    Serial.println(counter);
 
-  // Utwórz dokument JSON do przechowywania danych czujnika
-  StaticJsonDocument<200> doc;
+    // send in async / non-blocking mode
+    LoRa.beginPacket();
+    //LoRa.print("hello ");
+    //LoRa.print(counter);
 
-  // Dodaj wartości czujnika jako pary klucz-wartość do dokumentu JSON
-  doc["W"] = dht.readHumidity();      // Wilgotność
-  doc["T"] = dht.readTemperature();   // Temperatura
-  //Serial.println(mac2String((byte*) &chipMac));
-  doc["ID"] = mac2String((byte*) &chipMac);   // Temperatura
-  doc["X"] = 51.889056;               // Pozycja 51.889056, 17.775250
-  doc["Y"] = 17.775250;               // Pozycja
+    // Utwórz dokument JSON do przechowywania danych czujnika
+    StaticJsonDocument<200> doc;
 
-  // Przekonwertuj dokument JSON na ciąg znaków do wysłania
-  String requestBody;
-  serializeJson(doc, requestBody);
-  LoRa.print(requestBody);
+    // Dodaj wartości czujnika jako pary klucz-wartość do dokumentu JSON
+    doc["W"] = dht.readHumidity();      // Wilgotność
+    doc["T"] = dht.readTemperature();   // Temperatura
+    //Serial.println(mac2String((byte*) &chipMac));
+    doc["ID"] = mac2String((byte*) &chipMac);   // Temperatura
+    doc["X"] = 51.889056;               // Pozycja 51.889056, 17.775250
+    doc["Y"] = 17.775250;               // Pozycja
 
-  LoRa.endPacket();
+    // Przekonwertuj dokument JSON na ciąg znaków do wysłania
+    String requestBody;
+    serializeJson(doc, requestBody);
+    LoRa.print(requestBody);
 
-  counter++;
+    LoRa.endPacket(true); // true = async / non-blocking mode
 
-  delay(10000);
+    counter++;
+  } else {
+    int packetSize = LoRa.parsePacket();
+    if (packetSize) {
+      // received a packet
+      Serial.print("Received packet '");
+
+      // read packet
+      while (LoRa.available()) {
+        Serial.print((char)LoRa.read());
+      }
+
+      // print RSSI of packet
+      Serial.print("' with RSSI ");
+      Serial.println(LoRa.packetRssi());
+    }
+  }
+}
+
+void onTxDone() {
+  Serial.println("TxDone");
+}
+
+boolean runEvery(unsigned long interval) {
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    return true;
+  }
+  return false;
 }
