@@ -146,6 +146,20 @@ The end device should be flashed with the code from the node folder
 ```
 and connect the Asair temperature and humidity sensor.
 
+|    ESP32     |    Sensor   |  RFM95  |Antenna connector|
+|--------------|-------------|---------|-----------------|
+|      2       |-------------|  dio0   |-----------------|
+|      5       |-------------|  NSS    |-----------------|
+|     14       |-------------|  RESET  |-----------------|
+|     18       |-------------|  SCK    |-----------------|
+|     19       |-------------|  MISO   |-----------------|
+|     23       |-------------|  MOSI   |-----------------|
+|     27       |    data     |---------|-----------------|
+|    3.3v      |    3.3v     |  3.3v   |-----------------|
+|     GND      |    GND      |   GND   |       GND       |
+|--------------|-------------|   ANA   |      DATA       |
+
+
 
 ## Running Tests
 
