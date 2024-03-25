@@ -145,3 +145,8 @@ To run tests, run the following command
 - [Maciej Matysiak](https://github.com/ItsMaciek)
 - [Maksymilian Zwierz](https://github.com/Zwierzu2115)
 
+
+
+
+The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The gateway should be flashed with the code from the gateway folder. The end device should be flashed with the code from the node folder and connect the Asair temperature and humidity sensor.
+
