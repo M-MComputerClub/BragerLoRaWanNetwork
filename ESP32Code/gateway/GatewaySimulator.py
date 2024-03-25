@@ -10,7 +10,7 @@ names = ['g-4df5g6h','g-2432fg']
 interval = 2
 
 # Dane JSON do wysłania
-with open("ESP32Code/gateway/config.json", "r") as f:
+with open("./config.json", "r") as f:
     # Wczytaj dane JSON do zmiennej
     data = json.load(f)
 
