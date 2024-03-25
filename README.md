@@ -142,7 +142,7 @@ The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The ga
 The end device should be flashed with the code from the node folder
 
 ```bash
-  cd ESP32Code/node
+  cd ESP32Code/endDevice
 ```
 and connect the Asair temperature and humidity sensor.
 
