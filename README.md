@@ -99,6 +99,9 @@ Password for the administration panel: **admin**
 
 ### Server
 
+Install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
+Install [Node.js](https://nodejs.org/en/download)
+
 Go to the server directory
 
 ```bash
