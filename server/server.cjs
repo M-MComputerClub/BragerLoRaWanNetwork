@@ -27,6 +27,22 @@ async function connectToDB() {
     try {
         await client.connect();
         console.log('Connected to MongoDB');
+        // Po połączeniu z bazą danych, wczytaj dane z plików JSON i zapisz je do odpowiednich kolekcji
+        const database = client.db('BragerLoRaWanNetwork');
+        const accounts = database.collection('Accounts');
+        const devices = database.collection('Devices');
+        const gateways = database.collection('Gateways');
+        if (accountsCount === 0 && devicesCount === 0 && gatewaysCount === 0){
+
+        const accountsData = require('../database/BragerLoRaWanNetwork.Accounts.json');
+        const devicesData = require('../database/BragerLoRaWanNetwork.Devices.json');
+        const gatewaysData = require('../database/BragerLoRaWanNetwork.Gateways.json');
+
+        await accounts.insertMany(accountsData);
+        await devices.insertMany(devicesData);
+        await gateways.insertMany(gatewaysData);
+        }
+
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
     }

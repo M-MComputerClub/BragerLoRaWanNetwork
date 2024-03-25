@@ -1,0 +1,18 @@
+[{
+  "_id": {
+    "$oid": "65f95240dbed224bfc3bad30"
+  },
+  "GatewayDevID": "g-4df5g6h",
+  "geolocationName": "Rolna 11  Pleszew",
+  "gatewayGeolocationLatitude": "51.888718",
+  "gatewayGeolocationLongitude": "17.775706"
+},
+{
+  "_id": {
+    "$oid": "65f95240dbed224bfc3bad31"
+  },
+  "GatewayDevID": "g-2432fg",
+  "geolocationName": "Sadowa   Ostrów Wielkopolski",
+  "gatewayGeolocationLatitude": "51.629351",
+  "gatewayGeolocationLongitude": "17.820658"
+}]
