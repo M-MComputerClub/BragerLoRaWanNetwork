@@ -27,27 +27,38 @@ async function connectToDB() {
     try {
         await client.connect();
         console.log('Connected to MongoDB');
-        // Po połączeniu z bazą danych, wczytaj dane z plików JSON i zapisz je do odpowiednich kolekcji
         const database = client.db('BragerLoRaWanNetwork');
+        
+        // Sprawdź, czy kolekcje istnieją, jeśli nie, stwórz je
         const accounts = database.collection('Accounts');
+        if (!(await accounts.countDocuments({}))) {
+            await database.createCollection('Accounts');
+        }
+        
         const devices = database.collection('Devices');
+        if (!(await devices.countDocuments({}))) {
+            await database.createCollection('Devices');
+        }
+        
         const gateways = database.collection('Gateways');
+        if (!(await gateways.countDocuments({}))) {
+            await database.createCollection('Gateways');
+        }
 
+        // Tutaj możesz wstawić dane, jeśli baza jest pusta
         const accountsCount = await accounts.countDocuments({});
         const devicesCount = await devices.countDocuments({});
         const gatewaysCount = await gateways.countDocuments({});
-
-        if (accountsCount === 0 && devicesCount === 0 && gatewaysCount === 0){
-
-        const accountsData = require('../database/BragerLoRaWanNetwork.Accounts.json');
-        const devicesData = require('../database/BragerLoRaWanNetwork.Devices.json');
-        const gatewaysData = require('../database/BragerLoRaWanNetwork.Gateways.json');
-
-        await accounts.insertMany(accountsData);
-        await devices.insertMany(devicesData);
-        await gateways.insertMany(gatewaysData);
+        
+        if (accountsCount === 0 && devicesCount === 0 && gatewaysCount === 0) {
+            const accountsData = require('../database/BragerLoRaWanNetwork.Accounts.json');
+            const devicesData = require('../database/BragerLoRaWanNetwork.Devices.json');
+            const gatewaysData = require('../database/BragerLoRaWanNetwork.Gateways.json');
+            
+            await accounts.insertMany(accountsData);
+            await devices.insertMany(devicesData);
+            await gateways.insertMany(gatewaysData);
         }
-
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
     }

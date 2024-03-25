@@ -1,7 +1,4 @@
 [{
-  "_id": {
-    "$oid": "65fc78d728e084bb27569e4f"
-  },
   "DevID": "n-32ewg",
   "temperature": 6,
   "humidity": 57,
@@ -12,9 +9,6 @@
   "time": "25/03/2024 13:31:17"
 },
 {
-  "_id": {
-    "$oid": "6600934e1b508315efbb5fc3"
-  },
   "DevID": "n-f6g7he",
   "temperature": 13,
   "humidity": 29,

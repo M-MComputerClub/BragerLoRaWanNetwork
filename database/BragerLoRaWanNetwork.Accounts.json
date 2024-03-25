@@ -1,7 +1,4 @@
 [{
-  "_id": {
-    "$oid": "65f945ba61df2d5fc7546e2c"
-  },
   "username": "admin",
   "password": "admin"
 }]
