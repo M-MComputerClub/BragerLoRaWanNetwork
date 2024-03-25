@@ -81,6 +81,11 @@ Go to the website app directory
   cd App
 ```
 
+Install [Node.js](https://nodejs.org/en/download) if u dont have to check it use this command
+```bash
+  node --version
+```
+
 Install dependencies
 
 ```bash
@@ -100,7 +105,6 @@ Password for the administration panel: **admin**
 ### Server
 
 Install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
-Install [Node.js](https://nodejs.org/en/download)
 
 Go to the server directory
 
