@@ -32,6 +32,11 @@ async function connectToDB() {
         const accounts = database.collection('Accounts');
         const devices = database.collection('Devices');
         const gateways = database.collection('Gateways');
+
+        const accountsCount = await accounts.countDocuments({});
+        const devicesCount = await devices.countDocuments({});
+        const gatewaysCount = await gateways.countDocuments({});
+
         if (accountsCount === 0 && devicesCount === 0 && gatewaysCount === 0){
 
         const accountsData = require('../database/BragerLoRaWanNetwork.Accounts.json');
