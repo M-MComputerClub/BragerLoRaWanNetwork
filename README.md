@@ -130,6 +130,23 @@ Start the simulation
 ```bash
   python ./GatewaySimulator.py
 ```
+
+### Hardware connection
+
+The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The gateway should be flashed with the code from the gateway folder. 
+
+```bash
+  cd ESP32Code/gateway
+```
+
+The end device should be flashed with the code from the node folder
+
+```bash
+  cd ESP32Code/node
+```
+and connect the Asair temperature and humidity sensor.
+
+
 ## Running Tests
 
 To run tests, run the following command
@@ -148,5 +165,5 @@ To run tests, run the following command
 
 
 
-The code has been adapted for the ESP32-WROOM-32E with the RFM95W module. The gateway should be flashed with the code from the gateway folder. The end device should be flashed with the code from the node folder and connect the Asair temperature and humidity sensor.
+
 
