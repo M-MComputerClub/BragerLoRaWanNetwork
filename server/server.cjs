@@ -23,6 +23,8 @@ const io = socketIo(server, {
 const uri = 'mongodb://127.0.0.1:27017';
 const client = new MongoClient(uri);
 
+let softwareVersion = 10;
+
 async function connectToDB() {
     try {
         await client.connect();
@@ -169,6 +171,10 @@ io.on('connection', async (socket) => {
             console.log(`Lokalizacja urządzenia ${deviceId} została zaktualizowana w bazie danych.`);
         }
     });
+    socket.on('updateVersion', async (version) => {
+        softwareVersion = version;
+        console.log(softwareVersion);
+    });
 });
 
 // Endpoint to receive gateway configuration
@@ -207,7 +213,7 @@ app.post('/api/config', async (req, res) => {
         });
         console.log(`Dane gatewaya ${ gatewayDevID } zostały dodane.`);
     }
-    res.status(200).send('Dane odebrane!')
+    res.status(200).send(`${ softwareVersion }`)
     
     emitGatewayData(io);
 
@@ -218,7 +224,7 @@ app.post('/api/dane', async (req, res) => {
     const data = req.body;
     const temperature = data.T;
     const humidity = data.W;
-    const devID = data.DevId;
+    const devID = data.ID;
     const gatewayDevID = data.GatewayDevId;
     let time = new Date();
     time.setHours(time.getHours() + 1);
@@ -249,7 +255,7 @@ app.post('/api/dane', async (req, res) => {
             });
             console.log(`Dane urządzenia ${ devID } zostały dodane do bazy danych bez lokalizacji.`);
         }
-        res.status(200).send('Dane odebrane!')
+        res.status(200).send(`${ softwareVersion }`)
         
         emitDeviceData(io)
 
