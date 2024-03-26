@@ -180,9 +180,11 @@ io.on('connection', async (socket) => {
 // Endpoint to receive gateway configuration
 app.post('/api/config', async (req, res) => {
     const data = req.body;
-    const gatewayDevID = data.GatewayDevId;
-    const gatewayGeolocationLatitude = data.X;
-    const gatewayGeolocationLongitude = data.Y;
+    const gatewayDevID = data.DevId;
+    const gatewayGeolocation = data.Location.split(';');
+    //const listaa = gatewayGeolocation.split(';')
+    const gatewayGeolocationLatitude = gatewayGeolocation[0];
+    const gatewayGeolocationLongitude = gatewayGeolocation[1];
     
     // Convert coordinates to address
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${gatewayGeolocationLatitude}&lon=${gatewayGeolocationLongitude}`);
