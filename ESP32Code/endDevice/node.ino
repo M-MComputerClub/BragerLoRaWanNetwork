@@ -29,6 +29,10 @@ bool updating = false;
 const char* ssid = "Trzmiel";
 const char* password = "RYZIDRUB";
 
+RTC_DATA_ATTR int count = 1;
+RTC_DATA_ATTR float wil = 0;
+RTC_DATA_ATTR float tem = 0;
+
 AsyncWebServer server(80);
 
 int counter = 0;
@@ -68,6 +72,7 @@ void update(){
 
 void setup() {
   //initialize Serial Monitor
+  Serial.println(count);
   Serial.begin(115200);
   updating = false;
   
@@ -106,9 +111,12 @@ void setup() {
 
 void loop() {
   if (runEvery(5000)) { // repeat every 5000 millis
-
+    
+    if(count>3){
     Serial.print("Sending packet non-blocking: ");
     Serial.println(counter);
+    Serial.println(wil/3);
+    Serial.println(tem/3);
 
     // send in async / non-blocking mode
     LoRa.beginPacket();
@@ -119,8 +127,8 @@ void loop() {
     StaticJsonDocument<200> doc;
 
     // Dodaj wartości czujnika jako pary klucz-wartość do dokumentu JSON
-    doc["W"] = dht.readHumidity();      // Wilgotność
-    doc["T"] = dht.readTemperature();   // Temperatura
+    doc["W"] = wil/3;      // Wilgotność
+    doc["T"] = tem/3;   // Temperatura
     doc["DevId"] = mac2String((byte*) &chipMac);   // Temperatura
     doc["Ver"] = version;               // Pozycja
 
@@ -132,7 +140,19 @@ void loop() {
     LoRa.print(requestBody);
 
     LoRa.endPacket(true); // true = async / non-blocking mode
-
+    count=1;
+    wil=0;
+    tem=0;
+    }
+    else {
+      wil = wil + dht.readHumidity();
+      tem = tem + dht.readTemperature();
+      Serial.println(wil);
+      Serial.println(tem);
+      Serial.println("count: ");
+      Serial.println(count);
+      count++;
+    }
     counter++;
   
     while(!runEvery(5000)){
@@ -157,6 +177,7 @@ void loop() {
     esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
     Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +" Seconds");
 
+    delay(1000);
     Serial.println("Going to sleep now");
     delay(1000);
     Serial.flush(); 
