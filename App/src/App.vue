@@ -28,8 +28,8 @@
       <!-- Plan Updates -->
       <div v-if="isClicked && isValid && undefinedDevices.length > 0" :class="{'w-0': !isClicked, 'w-full': isClicked}" class="h-1 bg-white m-5 rounded-full transition-all duration-500 ease-in-out"></div>
       <h2 v-if="isClicked && isValid" class="text-xl font-semibold text-white mb-2">Plan Updates</h2>
-      <input v-if="isClicked && isValid" type="datetime-local" class="p-2 rounded-md text-background w-1/2"/>
-      <button v-if="isClicked && isValid" class="p-2 rounded-md text-background w-1/3 bg-white m-2 hover:bg-color hover:text-white">Plan</button>
+      <input v-if="isClicked && isValid" v-model="systemVersion" type="number" class="p-2 rounded-md text-background w-1/2"/>
+      <button v-if="isClicked && isValid" @click="updateNotification(systemVersion)" class="p-2 rounded-md text-background w-1/3 bg-white m-2 hover:bg-color hover:text-white">Plan</button>
     </div>
     <!-- Map -->
     <div class="w-screen h-screen">
@@ -196,5 +196,9 @@ const sendDeviceLocations = () => {
       undefinedDevices.value.splice(index, 1);
     }
   });
+};
+const updateNotification = (systemVersion) => {
+  socket.emit('updateVersion', systemVersion);
+  //console.log(systemVersion)
 };
 </script>

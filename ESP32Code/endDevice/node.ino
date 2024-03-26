@@ -1,4 +1,3 @@
-//download those libraries
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>  // Biblioteka do obsługi danych JSON
@@ -12,7 +11,7 @@
 #include <AsyncTCP.h>
 
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP  15        /* Time ESP32 will go to sleep (in seconds) */
+#define TIME_TO_SLEEP  5        /* Time ESP32 will go to sleep (in seconds) */
 
 RTC_DATA_ATTR int bootCount = 0;
 
@@ -23,6 +22,9 @@ DHT dht(DHT11_PIN, DHT11);
 #define ss 5
 #define rst 14
 #define dio0 2
+
+const int version = 10;
+bool updating = false;
 
 const char* ssid = "Trzmiel";
 const char* password = "RYZIDRUB";
@@ -46,6 +48,7 @@ String mac2String(byte ar[]) {
 }
 
 void update(){
+  updating = true;
   Serial.println("Setting AP (Access Point)");
   // NULL sets an open Access Point
   WiFi.softAP("ESP-WIFI-MANAGER", NULL);
@@ -66,6 +69,7 @@ void update(){
 void setup() {
   //initialize Serial Monitor
   Serial.begin(115200);
+  updating = false;
   
   //Increment boot number and print it every reboot
   ++bootCount;
@@ -117,14 +121,14 @@ void loop() {
     // Dodaj wartości czujnika jako pary klucz-wartość do dokumentu JSON
     doc["W"] = dht.readHumidity();      // Wilgotność
     doc["T"] = dht.readTemperature();   // Temperatura
-    //Serial.println(mac2String((byte*) &chipMac));
-    doc["ID"] = mac2String((byte*) &chipMac);   // Temperatura
-    doc["X"] = 51.889056;               // Pozycja 51.889056, 17.775250
-    doc["Y"] = 17.775250;               // Pozycja
+    doc["DevId"] = mac2String((byte*) &chipMac);   // Temperatura
+    doc["Ver"] = version;               // Pozycja
 
     // Przekonwertuj dokument JSON na ciąg znaków do wysłania
     String requestBody;
     serializeJson(doc, requestBody);
+    Serial.println(requestBody);
+
     LoRa.print(requestBody);
 
     LoRa.endPacket(true); // true = async / non-blocking mode
@@ -132,6 +136,7 @@ void loop() {
     counter++;
   
     while(!runEvery(5000)){
+      Serial.print("Szukam");
       int packetSize = LoRa.parsePacket();
       if (packetSize) {
         // received a packet
@@ -146,8 +151,9 @@ void loop() {
         Serial.print("' with RSSI ");
         Serial.println(LoRa.packetRssi());
         update();
+         while(updating){}
       }
-
+    }
     esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
     Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +" Seconds");
 
@@ -155,7 +161,6 @@ void loop() {
     delay(1000);
     Serial.flush(); 
     esp_deep_sleep_start();
-    }
   }
 }
 
