@@ -224,14 +224,14 @@ app.post('/api/dane', async (req, res) => {
     const data = req.body;
     const temperature = data.T;
     const humidity = data.W;
-    const devID = data.ID;
+    const devID = data.DevId;
     const gatewayDevID = data.GatewayDevId;
     let time = new Date();
     time.setHours(time.getHours() + 1);
     time = time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[0].split("-").reverse().join("/") + " " + time.toISOString().replace(/T/, ' ').replace(/\..+/, '').split(" ")[1]; // Formatowanie daty i czasu
     const geolocationLatitude = "undefined";
     const geolocationLongitude = "undefined";
-    
+    console.log(time)
         const geolocationName = devID
 
         const database = client.db('BragerLoRaWanNetwork');
