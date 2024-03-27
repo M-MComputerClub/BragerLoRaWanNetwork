@@ -31,7 +31,6 @@ async function connectToDB() {
         console.log('Connected to MongoDB');
         const database = client.db('BragerLoRaWanNetwork');
         
-        // Sprawdź, czy kolekcje istnieją, jeśli nie, stwórz je
         const accounts = database.collection('Accounts');
         if (!(await accounts.countDocuments({}))) {
             await database.createCollection('Accounts');
@@ -47,7 +46,6 @@ async function connectToDB() {
             await database.createCollection('Gateways');
         }
 
-        // Tutaj możesz wstawić dane, jeśli baza jest pusta
         const accountsCount = await accounts.countDocuments({});
         const devicesCount = await devices.countDocuments({});
         const gatewaysCount = await gateways.countDocuments({});
