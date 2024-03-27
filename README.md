@@ -12,6 +12,8 @@ We have developed software for the ESP32 with the RFM95W module, which communica
 
 ## Screenshots
 
+### Website
+
 #### Desktop
 ![Desktop Admin panel close](img/desktopAdminClose.png)
 
@@ -21,6 +23,11 @@ We have developed software for the ESP32 with the RFM95W module, which communica
 ![Mobile Admin panel close](img/mobileAdminClose.png)
 
 ![Mobile Admin panel open](img/mobileAdminOpen.png)
+
+### Gateway Config
+
+![Gateway Config Panel on Desktop](/img/gatewayConfig.png)
+
 ## Tech Stack
 
 **Client:** Vue.js, Vite.js, TailwindCSS, Leaflet.js, OpenStreetMaps, SocketIo-client
